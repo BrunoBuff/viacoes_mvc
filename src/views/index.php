@@ -1,48 +1,41 @@
 <?php
+// A lógica do banco deve preferencialmente estar no Controller,
+// mas se estiver seguindo um modelo simples, fica no topo do arquivo:
+$stmtViacoes = $pdo->query("SELECT * FROM viacoes WHERE status = 'ativo' ORDER BY nome ASC");
+$viacoesAtivas = $stmtViacoes->fetchAll();
 
-declare(strict_types=1);
-
-use App\Models\Task;
-
-/** @var list<Task> $tasks */
-
+$stmtTotal = $pdo->query("SELECT COUNT(*) FROM viacoes WHERE status = 'ativo'");
+$totalViacoes = (int) $stmtTotal->fetchColumn();
 ?>
 
-<h1>Tasks</h1>
+<section class="banner">
+  <div class="container banner-content">
+    <div class="search-box">
+      <h2>Comprar Passagens de Ônibus</h2>
+      <form>
+      </form>
+    </div>
+  </div>
+</section>
 
-<p><a href="/tasks/create">Criar task</a></p>
+<section class="beneficios">
+</section>
 
-<?php if (count($tasks) === 0): ?>
-    <p>Nenhuma task cadastrada.</p>
-<?php else: ?>
-    <table border="1" cellpadding="6" cellspacing="0">
-        <thead>
-        <tr>
-            <th>ID</th>
-            <th>Título</th>
-            <th>Status</th>
-            <th>Criada em</th>
-            <th>Ações</th>
-        </tr>
-        </thead>
-        <tbody>
-        <?php foreach ($tasks as $task): ?>
-            <tr>
-                <td><?= (int) $task->id ?></td>
-                <td><?= htmlspecialchars($task->title, ENT_QUOTES, 'UTF-8') ?></td>
-                <td><?= $task->isDone ? 'Concluída' : 'Pendente' ?></td>
-                <td><?= htmlspecialchars($task->createdAt, ENT_QUOTES, 'UTF-8') ?></td>
-                <td>
-                    <span class="actions">
-                        <a href="/tasks/<?= (int) $task->id ?>/edit">Editar</a>
+<section class="secao-viacoes">
+  <div class="container">
+    <div class="secao-header">
+      <h2>Nossas Viações Parceiras</h2>
+      <?php if ($totalViacoes > 0): ?>
+        <span class="badge-ativas"><?= $totalViacoes ?> viações ativas</span>
+      <?php endif; ?>
+    </div>
 
-                        <form method="post" action="/tasks/<?= (int) $task->id ?>/delete" onsubmit="return confirm('Remover esta task?');">
-                            <button type="submit">Excluir</button>
-                        </form>
-                    </span>
-                </td>
-            </tr>
-        <?php endforeach; ?>
-        </tbody>
-    </table>
-<?php endif; ?>
+    <div class="viacoes-grid">
+      <?php foreach ($viacoesAtivas as $v): ?>
+        <a href="<?= $v['url'] ?>" class="viacao-card">
+          <span class="nome-viacao"><?= $v['nome'] ?></span>
+        </a>
+      <?php endforeach; ?>
+    </div>
+  </div>
+</section>
