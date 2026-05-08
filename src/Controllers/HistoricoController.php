@@ -7,7 +7,7 @@ namespace App\Controllers;
 use App\Core\View;
 use App\Repositories\HistoricoRepository;
 
-// Exibe o log das alterações realizadas
+// Exibe o log das alterações
 final class HistoricoController
 {
   public function __construct()
