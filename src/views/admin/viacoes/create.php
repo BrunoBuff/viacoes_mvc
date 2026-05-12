@@ -1,49 +1,69 @@
-<?php
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cadastrar Viação</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
 
-declare(strict_types=1);
+<h1>Cadastrar Viação</h1>
 
-/** @var list<string> $errors */
-/** @var array{title: string, description: string, is_done: bool} $old */
-
-?>
-
-<h1>Criar task</h1>
-
-<?php if ($errors !== []): ?>
-    <div class="alert alert--danger">
-        <p><strong>Corrija os erros:</strong></p>
-        <ul>
-            <?php foreach ($errors as $error): ?>
-                <li><?= htmlspecialchars($error, ENT_QUOTES, 'UTF-8') ?></li>
-            <?php endforeach; ?>
-        </ul>
-    </div>
+<?php if (!empty($errors)): ?>
+  <div class="alert-erro">
+    <?php foreach ($errors as $e): ?>
+      <p>⚠ <?= htmlspecialchars($e) ?></p>
+    <?php endforeach; ?>
+  </div>
 <?php endif; ?>
 
-<form method="post" action="/tasks">
-    <div>
-        <label for="title">Título</label><br>
-        <input
-            id="title"
-            type="text"
-            name="title"
-            value="<?= htmlspecialchars($old['title'] ?? '', ENT_QUOTES, 'UTF-8') ?>"
-            required
-            maxlength="255"
-        >
-    </div>
+<form method="POST" action="/admin/viacoes" enctype="multipart/form-data">
 
-    <div>
-        <label for="description">Descrição</label><br>
-        <textarea id="description" name="description" rows="4" cols="60"><?= htmlspecialchars($old['description'] ?? '', ENT_QUOTES, 'UTF-8') ?></textarea>
-    </div>
+  <div class="campo">
+    <label>Nome *</label>
+    <input type="text" name="nome"
+           value="<?= htmlspecialchars($old['nome'] ?? '') ?>"
+           placeholder="Ex: Viação Cometa" required>
+  </div>
 
-    <div>
-        <label>
-            <input type="checkbox" name="is_done" value="1" <?= !empty($old['is_done']) ? 'checked' : '' ?>>
-            Concluída
-        </label>
-    </div>
+  <div class="campo">
+    <label>URL *</label>
+    <input type="url" name="url" id="url"
+           value="<?= htmlspecialchars($old['url'] ?? '') ?>"
+           placeholder="https://exemplo.com.br" required>
+    <span id="url-error" class="campo-erro"></span>
+  </div>
 
-    <button type="submit">Salvar</button>
+  <div class="campo">
+    <label>Cidade *</label>
+    <input type="text" name="cidade"
+           value="<?= htmlspecialchars($old['cidade'] ?? '') ?>"
+           placeholder="Ex: São Paulo">
+  </div>
+
+  <div class="campo">
+    <label>Status</label>
+    <select name="status">
+      <option value="ativo"
+        <?= (($old['status'] ?? 'ativo') === 'ativo') ? 'selected' : '' ?>>Ativo</option>
+      <option value="inativo"
+        <?= (($old['status'] ?? '') === 'inativo') ? 'selected' : '' ?>>Inativo</option>
+    </select>
+  </div>
+
+  <div class="campo">
+    <label>Logo (opcional — jpg, png, webp · máx 2 MB)</label>
+    <input type="file" name="logo" accept=".jpg,.jpeg,.png,.webp">
+  </div>
+
+  <button type="submit">Cadastrar</button>
+
 </form>
+
+<br>
+<a href="/admin/viacoes">← Voltar para a lista</a>
+
+<script src="/assets/js/script.js"></script>
+</body>
+</html>

@@ -1,52 +1,80 @@
-<?php
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Editar Viação</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
 
-declare(strict_types=1);
+<h1>Editar Viação</h1>
 
-use App\Models\Task;
-
-/** @var Task $task */
-/** @var list<string> $errors */
-/** @var array{title: string, description: string, is_done: bool} $old */
-
-?>
-
-<h1>Editar task #<?= (int) $task->id ?></h1>
-
-<?php if ($errors !== []): ?>
-    <div class="alert alert--danger">
-        <p><strong>Corrija os erros:</strong></p>
-        <ul>
-            <?php foreach ($errors as $error): ?>
-                <li><?= htmlspecialchars($error, ENT_QUOTES, 'UTF-8') ?></li>
-            <?php endforeach; ?>
-        </ul>
-    </div>
+<?php if (!empty($errors)): ?>
+  <div class="alert-erro">
+    <?php foreach ($errors as $e): ?>
+      <p>⚠ <?= htmlspecialchars($e) ?></p>
+    <?php endforeach; ?>
+  </div>
 <?php endif; ?>
 
-<form method="post" action="/tasks/<?= (int) $task->id ?>">
-    <div>
-        <label for="title">Título</label><br>
-        <input
-            id="title"
-            type="text"
-            name="title"
-            value="<?= htmlspecialchars($old['title'] ?? '', ENT_QUOTES, 'UTF-8') ?>"
-            required
-            maxlength="255"
-        >
-    </div>
+<?php
+// __DIR__ = src/views/admin/viacoes
+// dirname(__DIR__, 4) = raiz do projeto
+$uploadBase = dirname(__DIR__, 4) . '/src/public/uploads/logos/';
+?>
 
-    <div>
-        <label for="description">Descrição</label><br>
-        <textarea id="description" name="description" rows="4" cols="60"><?= htmlspecialchars($old['description'] ?? '', ENT_QUOTES, 'UTF-8') ?></textarea>
-    </div>
+<form method="POST" action="/admin/viacoes/<?= $viacao->id ?>" enctype="multipart/form-data">
+  <input type="hidden" name="_method" value="PUT">
 
-    <div>
-        <label>
-            <input type="checkbox" name="is_done" value="1" <?= !empty($old['is_done']) ? 'checked' : '' ?>>
-            Concluída
-        </label>
-    </div>
+  <div class="campo">
+    <label>Nome *</label>
+    <input type="text" name="nome"
+           value="<?= htmlspecialchars($old['nome'] ?? '') ?>" required>
+  </div>
 
-    <button type="submit">Salvar alterações</button>
+  <div class="campo">
+    <label>URL *</label>
+    <input type="url" name="url" id="url"
+           value="<?= htmlspecialchars($old['url'] ?? '') ?>" required>
+    <span id="url-error" class="campo-erro"></span>
+  </div>
+
+  <div class="campo">
+    <label>Cidade *</label>
+    <input type="text" name="cidade"
+           value="<?= htmlspecialchars($old['cidade'] ?? '') ?>">
+  </div>
+
+  <div class="campo">
+    <label>Status</label>
+    <select name="status">
+      <option value="ativo"
+        <?= (($old['status'] ?? '') === 'ativo') ? 'selected' : '' ?>>Ativo</option>
+      <option value="inativo"
+        <?= (($old['status'] ?? '') === 'inativo') ? 'selected' : '' ?>>Inativo</option>
+    </select>
+  </div>
+
+  <div class="campo">
+    <label>Trocar Logo (opcional — manter vazio para não alterar)</label>
+    <?php if (!empty($viacao->logo) && file_exists($uploadBase . $viacao->logo)): ?>
+      <div style="margin-bottom:8px">
+        <img src="/uploads/logos/<?= htmlspecialchars($viacao->logo) ?>"
+             style="height:60px;border-radius:6px;border:1px solid #ddd" alt="Logo atual">
+        <small style="display:block;color:#666;margin-top:4px">Logo atual</small>
+      </div>
+    <?php endif; ?>
+    <input type="file" name="logo" accept=".jpg,.jpeg,.png,.webp">
+  </div>
+
+  <button type="submit">Salvar Alterações</button>
+
 </form>
+
+<br>
+<a href="/admin/viacoes">← Voltar para a lista</a>
+
+<script src="/assets/js/script.js"></script>
+</body>
+</html>

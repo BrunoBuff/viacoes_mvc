@@ -1,18 +1,31 @@
 <?php
-
 declare(strict_types=1);
 
-/** Arquivo de registro de rotas web. */
-use App\Controllers\TaskController;
+use App\Core\Router;
+use App\Controllers\HomeController;
+use App\Controllers\ViacaoController;
+use App\Controllers\HistoricoController;
+use App\Controllers\AuthController;
 
-/** @var App\Core\Router $router */
+$router = new Router();
 
-$router->get('/', [TaskController::class, 'index']);
-$router->get('/tasks', [TaskController::class, 'index']);
+// ── Pública ───────────────────────────────────────────────
+$router->get('/', [HomeController::class, 'index']);
 
-$router->get('/tasks/create', [TaskController::class, 'create']);
-$router->post('/tasks', [TaskController::class, 'store']);
+// ── Autenticação ──────────────────────────────────────────
+$router->get('/login',  [AuthController::class, 'showLogin']);
+$router->post('/login', [AuthController::class, 'login']);
+$router->get('/logout', [AuthController::class, 'logout']);
 
-$router->get('/tasks/{id}/edit', [TaskController::class, 'edit']);
-$router->post('/tasks/{id}', [TaskController::class, 'update']);
-$router->post('/tasks/{id}/delete', [TaskController::class, 'destroy']);
+// ── Admin — Viações ───────────────────────────────────────
+$router->get('/admin/viacoes',           [ViacaoController::class, 'index']);
+$router->get('/admin/viacoes/create',    [ViacaoController::class, 'create']);
+$router->post('/admin/viacoes',          [ViacaoController::class, 'store']);
+$router->get('/admin/viacoes/{id}/edit', [ViacaoController::class, 'edit']);
+$router->post('/admin/viacoes/{id}',     [ViacaoController::class, 'update']);
+$router->delete('/admin/viacoes/{id}',   [ViacaoController::class, 'destroy']);
+
+// ── Admin — Histórico ─────────────────────────────────────
+$router->get('/admin/historico', [HistoricoController::class, 'index']);
+
+return $router;

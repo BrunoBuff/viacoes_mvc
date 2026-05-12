@@ -5,7 +5,7 @@ services:
       dockerfile: Dockerfile
     container_name: task_app_app
     ports:
-      - "8082:80"
+      - "8081:80"
     command: >
       sh -c "if [ ! -f vendor/autoload.php ]; then
         composer install --no-interaction --prefer-dist;
@@ -16,7 +16,7 @@ services:
       - ./:/var/www/html
     environment:
       DB_HOST: db
-      DB_NAME: tasks
+      DB_NAME: viacoes
       DB_USER: app
       DB_PASSWORD: app123
     depends_on:
@@ -27,7 +27,7 @@ services:
     container_name: task_app_db
     restart: unless-stopped
     environment:
-      MYSQL_DATABASE: tasks
+      MYSQL_DATABASE: viacoes
       MYSQL_USER: app
       MYSQL_PASSWORD: app123
       MYSQL_ROOT_PASSWORD: root123

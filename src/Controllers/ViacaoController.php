@@ -1,142 +1,112 @@
 <?php
-
 declare(strict_types=1);
-
 namespace App\Controllers;
 
 use App\Core\View;
-use App\Repositories\HistoricoRepository;
-use App\Repositories\ViacaoRepository;
 use App\Services\ViacaoService;
+use Exception;
 
-// Gerencia as ações de CRUD das viações. Rotas protegidas por sessão — redireciona para /login se não autenticado.
+//Controller Administrativo para Gestão de Viações
 final class ViacaoController
 {
-  private readonly ViacaoService $service;                     // guarda instancia do service
+    private ViacaoService $viacoes;
 
-  public function __construct()
-  {
-    $this->requireAuth();                                      // verifica se usuário está logado
-
-    $pdo           = getPdo();
-    $this->service = new ViacaoService(                        // instanciar service e repositories
-      new ViacaoRepository($pdo),
-      new HistoricoRepository($pdo),
-    );
-  }
-
-  // ── GET /admin/viacoes ─────────────────────────────────────────────────────────────────────
-
-  public function index(): void
-  {
-    $busca   = trim((string) ($_GET['busca'] ?? ''));           // pegar busca da url
-    $viacoes = $this->service->listar($busca);                  // lista viações filtrando pela busca
-
-    View::render('admin/viacoes/index', [                 // renderizar a pagina de listagem
-      'viacoes' => $viacoes,
-      'busca'   => $busca,
-    ]);
-  }
-
-  // ── GET /admin/viacoes/create ──────────────────────────────────────────────────────────────
-
-  public function create(): void
-  {
-    View::render('admin/viacoes/create', [                // abrir formulário de cadastro
-      'errors' => [],
-      'old'    => [],
-    ]);
-  }
-
-  // ── POST /admin/viacoes ────────────────────────────────────────────────────────────────────
-
-  public function store(): void
-  {
-    $arquivo = !empty($_FILES['logo']['name']) ? $_FILES['logo'] : null;         // verificar se usuário enviou arquivo
-    $result  = $this->service->criar($_POST, $arquivo);                          // enviar dados para service criar viação
-
-    if (!$result['ok']) {                                                        // verificar se houve erro
-      View::render('admin/viacoes/create', [                               // renderizar formulário novamente
-        'errors' => $result['errors'],                                          // enviar erros para view
-        'old'    => $_POST,                                                     // manter dados digitados
-      ]);
-      return;
+    public function __construct(?ViacaoService $viacoes = null)
+    {
+        $this->viacoes = $viacoes ?? new ViacaoService();
     }
 
-    View::flash('success', 'Viação cadastrada com sucesso!');      // mensagem de sucesso
-    View::redirect('/admin/viacoes');                                      // redireciona para listagem
-  }
+    //Listagem com filtros e ordenação
+    public function index(): void
+    {
+        $busca = trim((string) ($_GET['nome'] ?? ''));
+        $status = trim((string) ($_GET['status'] ?? ''));
+        $ordem = trim((string) ($_GET['order'] ?? 'nome'));
+        $dir = trim((string) ($_GET['dir'] ?? 'ASC'));
 
-  // ── GET /admin/viacoes/{id}/edit ───────────────────────────────────────────────────────────
-
-  public function edit(int $id): void
-  {
-    $viacao = $this->service->buscarPorId($id);                    // buscar viação pelo id
-
-    if ($viacao === null) {                                        // verifica se viação existe, se não existir redireciona para listagem
-      View::redirect('/admin/viacoes');
-      return;
+        View::render('admin/viacoes/index', [
+            'viacoes' => $this->viacoes->all($busca, $status, $ordem, $dir),
+            'filtros' => compact('busca', 'status', 'ordem', 'dir')
+        ]);
     }
 
-    View::render('admin/viacoes/edit', [                     // abre o formulário de edição
-      'viacao' => $viacao,
-      'errors' => [],
-      'old'    => [
-        'nome'   => $viacao->nome,
-        'url'    => $viacao->url,
-        'cidade' => $viacao->cidade,
-        'status' => $viacao->status,
-      ],
-    ]);
-  }
-
-  // ── POST /admin/viacoes/{id} ───────────────────────────────────────────────────────────────
-
-  public function update(int $id): void
-  {
-    $viacao = $this->service->buscarPorId($id);                                 // busca viacao atual
-
-    if ($viacao === null) {                                                     // verifica se viação existe, se não, retorna para listagem
-      View::redirect('/admin/viacoes');
-      return;
+    //Formulário de criação
+    public function create(): void
+    {
+        View::render('admin/viacoes/create', [
+            'errors' => [],
+            'old' => ['nome' => '', 'url' => '', 'cidade' => '', 'status' => 'ativo']
+        ]);
     }
 
-    $arquivo = !empty($_FILES['logo']['name']) ? $_FILES['logo'] : null;         // verificar se usuário enviou nova logo
-    $result  = $this->service->atualizar($id, $viacao, $_POST, $arquivo);        // enviar dados para service atualizar viação
+    //Processa a criação (POST)
+    public function store(): void
+    {
+        try {
+            $this->viacoes->create($_POST, $this->getUploadedLogo());
 
-    if (!$result['ok']) {                                                       // verifica se houve erro
-      View::render('admin/viacoes/edit', [                                // renderiza novamente
-        'viacao' => $viacao,
-        'errors' => $result['errors'],                                         // enviar erros
-        'old'    => $_POST,                                                    // manter dados digitados
-      ]);
-      return;
+            View::flash('success', "Viação cadastrada com sucesso!");
+            View::redirect('/admin/viacoes');
+        } catch (Exception $e) {
+            View::render('admin/viacoes/create', [
+                'errors' => explode('|', $e->getMessage()),
+                'old' => $_POST
+            ]);
+            return;
+        }
     }
 
-    View::flash('success', 'Viação atualizada com sucesso!');    // mensagem de sucesso
-    View::redirect('/admin/viacoes');                                    // retorna para listagem
-  }
+    //Formulário de edição
+    public function edit(int $id): void
+    {
+        $viacao = $this->viacoes->find($id);
 
-  // ── POST /admin/viacoes/{id}/delete ───────────────────────────────────────────────────────
+        if ($viacao === null) {
+            http_response_code(404);
+            echo "Viação não encontrada.";
+            exit;
+        }
 
-  public function destroy(int $id): void
-  {
-    $viacao = $this->service->buscarPorId($id);                                       // busca viação pelo id
-
-    if ($viacao !== null) {                                                           // verifica viação existente
-      $this->service->excluir($viacao);                                               // exclui viação
-      View::flash('success', "Viação \"{$viacao->nome}\" excluída.");   // mensagem de sucesso
+        View::render('admin/viacoes/edit', [
+            'viacao' => $viacao,
+            'errors' => [],
+            'old' => ['nome' => $viacao->nome, 'url' => $viacao->url, 'cidade' => $viacao->cidade, 'status' => $viacao->status]
+        ]);
     }
 
-    View::redirect('/admin/viacoes');                                           // volta para listagem
-  }
+    //Processa a atualização (PUT)
+    public function update(int $id): void
+    {
+        try {
+            $this->viacoes->update($id, $_POST, $this->getUploadedLogo());
 
-  // ── Auth helper ────────────────────────────────────────────────────────────────────────────
+            View::flash('success', "Viação atualizada com sucesso!");
+            View::redirect('/admin/viacoes');
+        } catch (Exception $e) {
+            $viacao = $this->viacoes->find($id);
 
-  private function requireAuth(): void
-  {
-    if (empty($_SESSION['logado'])) {       // verificar se usuário não está logado
-      View::redirect('/login');       // redirecionar para login
+            View::render('admin/viacoes/edit', [
+                'viacao' => $viacao,
+                'errors' => explode('|', $e->getMessage()),
+                'old' => $_POST
+            ]);
+            return;
+        }
     }
-  }
+
+    //Remove uma viação (DELETE)
+    public function destroy(int $id): void
+    {
+        $this->viacoes->delete($id);
+        View::flash('success', "Viação removida com sucesso!");
+        View::redirect('/admin/viacoes');
+    }
+
+    private function getUploadedLogo(): ?array
+    {
+        if (!isset($_FILES['logo']) || $_FILES['logo']['error'] === UPLOAD_ERR_NO_FILE) {
+            return null;
+        }
+        return $_FILES['logo'];
+    }
 }

@@ -1,21 +1,42 @@
 <?php
-
 declare(strict_types=1);
-
 namespace App\Controllers;
 
 use App\Core\View;
-use App\Repositories\ViacaoRepository;
+use App\Services\ViacaoService;
+use Exception;
 
-// Controla a página pública inicial do site. Exibe as viações ativas.
-final class HomeController                                                               // controlar página inicial pública do sistema
+//Controller da Página Inicial
+final class HomeController
 {
-  public function index(): void
-  {
-    $viacoes = (new ViacaoRepository(getPdo()))->allAtivas();                            // buscar viações ativas no banco
+    private ViacaoService $viacoes;
 
-    View::render('home/index', [                                                   // renderiza a página inicial
-      'viacoes' => $viacoes,                                                            // enviar lista de viações para view
-    ]);
-  }
+    public function __construct(?ViacaoService $viacoes = null)
+    {
+        $this->viacoes = $viacoes ?? new ViacaoService();
+    }
+
+    // Renderiza a página inicial exibindo as viações ativas.
+    public function index(): void
+    {
+        $cacheHit = \getCachedData('viacoes_ativas') !== null;
+
+        try {
+            $viacoesAtivas = $this->viacoes->all('', 'ativo', 'nome', 'ASC');
+
+            View::render('home', [
+                'viacoesAtivas' => $viacoesAtivas,
+                'erroConexao'   => false,
+                'cacheHit'      => $cacheHit
+            ]);
+            return;
+
+        } catch (Exception $e) {
+            View::render('home', [
+                'viacoesAtivas' => [],
+                'erroConexao'   => true,
+                'cacheHit'      => $cacheHit
+            ]);
+        }
+    }
 }
