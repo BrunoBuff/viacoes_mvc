@@ -86,3 +86,35 @@ if (urlInput && urlError) {
     }
   });
 }
+
+// Tema Dark
+
+const themeToggle = document.getElementById('theme-toggle');
+const themeText = document.getElementById('theme-text');
+
+function enableDarkMode() {
+  document.body.classList.add('dark-mode');
+  localStorage.setItem('theme', 'dark');
+  if (themeText) themeText.textContent = 'Modo Claro';
+}
+
+function disableDarkMode() {
+  document.body.classList.remove('dark-mode');
+  localStorage.setItem('theme', 'light');
+  if (themeText) themeText.textContent = 'Modo Escuro';
+}
+
+// Verifica a preferência ao carregar a página
+if (localStorage.getItem('theme') === 'dark') {
+  enableDarkMode();
+}
+
+if (themeToggle) {
+  themeToggle.addEventListener('click', () => {
+    if (document.body.classList.contains('dark-mode')) {
+      disableDarkMode();
+    } else {
+      enableDarkMode();
+    }
+  });
+}

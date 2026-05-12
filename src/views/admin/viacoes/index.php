@@ -1,98 +1,270 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Lista de Viações</title>
+
+  <title>Administração de Viações</title>
+
   <link rel="stylesheet" href="/styles.css">
 </head>
-<body>
 
-<h1>Lista de Viações</h1>
+<body class="admin-page">
 
 <?php
-// __DIR__ = src/views/admin/viacoes
-// dirname(__DIR__, 4) = raiz do projeto
+use App\Core\View;
+
+/*
+|--------------------------------------------------------------------------
+| Upload base path
+|--------------------------------------------------------------------------
+*/
 $uploadBase = dirname(__DIR__, 4) . '/src/public/uploads/logos/';
 
-$flash = \App\Core\View::pullFlash();
-if ($flash): ?>
-  <div class="alert-<?= $flash['type'] === 'success' ? 'sucesso' : 'erro' ?>">
-    <p><?= htmlspecialchars($flash['message']) ?></p>
+/*
+|--------------------------------------------------------------------------
+| Flash message
+|--------------------------------------------------------------------------
+*/
+$flash = View::pullFlash();
+?>
+
+<div class="page-container">
+
+  <!-- ========================================================= -->
+  <!-- HEADER -->
+  <!-- ========================================================= -->
+
+  <header class="page-header">
+
+    <div>
+      <h1 class="page-title">
+        Administração de Viações
+      </h1>
+
+      <p class="page-subtitle">
+        Gerencie empresas cadastradas na plataforma
+      </p>
+    </div>
+
+    <a href="/logout" class="btn btn-secondary">
+      Sair
+    </a>
+
+  </header>
+
+  <!-- ========================================================= -->
+  <!-- FLASH MESSAGE -->
+  <!-- ========================================================= -->
+
+  <?php if ($flash): ?>
+
+    <div class="alert alert-<?= $flash['type'] ?>">
+      <?= htmlspecialchars($flash['message']) ?>
+    </div>
+
+  <?php endif; ?>
+
+  <!-- ========================================================= -->
+  <!-- ACTIONS -->
+  <!-- ========================================================= -->
+
+  <section class="header-actions">
+
+    <div class="header-buttons">
+
+      <a href="/admin/viacoes/create" class="btn btn-primary">
+        + Nova Viação
+      </a>
+
+      <a href="/admin/historico" class="btn btn-secondary">
+        Ver Histórico
+      </a>
+
+    </div>
+
+    <form method="GET"
+          action="/admin/viacoes"
+          class="form-busca">
+
+      <input
+        type="text"
+        name="busca"
+        value="<?= htmlspecialchars($filtros['busca'] ?? '') ?>"
+        placeholder="Buscar por nome ou cidade..."
+        autocomplete="off"
+      >
+
+      <button type="submit" class="btn btn-search">
+        Pesquisar
+      </button>
+
+      <?php if (!empty($filtros['busca'])): ?>
+
+        <a href="/admin/viacoes" class="btn-limpar">
+          Limpar
+        </a>
+
+      <?php endif; ?>
+
+    </form>
+
+  </section>
+
+  <!-- ========================================================= -->
+  <!-- TABLE -->
+  <!-- ========================================================= -->
+
+  <div class="table-wrapper">
+
+    <table class="table">
+
+      <thead>
+      <tr>
+        <th>ID</th>
+        <th>Viação</th>
+        <th>URL</th>
+        <th>Cidade</th>
+        <th>Status</th>
+        <th class="text-center">Ações</th>
+      </tr>
+      </thead>
+
+      <tbody>
+
+      <?php if (empty($viacoes)): ?>
+
+        <tr>
+          <td colspan="6" class="empty-row">
+            Nenhuma viação encontrada.
+          </td>
+        </tr>
+
+      <?php else: ?>
+
+        <?php foreach ($viacoes as $v): ?>
+
+          <tr>
+
+            <!-- ID -->
+            <td>
+              #<?= (int) $v->id ?>
+            </td>
+
+            <!-- VIAÇÃO -->
+            <td>
+
+              <div class="viacao-info">
+
+                <?php if (!empty($v->logo) && file_exists($uploadBase . $v->logo)): ?>
+
+                  <img
+                    src="/uploads/logos/<?= htmlspecialchars($v->logo) ?>"
+                    alt="Logo <?= htmlspecialchars($v->nome) ?>"
+                    class="logo-avatar"
+                  >
+
+                <?php else: ?>
+
+                  <div class="logo-placeholder">
+                    <?= strtoupper(mb_substr($v->nome, 0, 1, 'UTF-8')) ?>
+                  </div>
+
+                <?php endif; ?>
+
+                <div class="viacao-meta">
+
+                  <strong>
+                    <?= htmlspecialchars($v->nome) ?>
+                  </strong>
+
+                </div>
+
+              </div>
+
+            </td>
+
+            <!-- URL -->
+            <td>
+
+              <a
+                href="<?= htmlspecialchars($v->url) ?>"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="url-link"
+              >
+                Visitar site
+              </a>
+
+            </td>
+
+            <!-- CIDADE -->
+            <td>
+              <?= htmlspecialchars($v->cidade ?: '—') ?>
+            </td>
+
+            <!-- STATUS -->
+            <td>
+
+              <span class="status-badge status-<?= htmlspecialchars($v->status) ?>">
+                <?= ucfirst(htmlspecialchars($v->status)) ?>
+              </span>
+
+            </td>
+
+            <!-- AÇÕES -->
+            <td>
+
+              <div class="table-actions">
+
+                <a
+                  href="/admin/viacoes/<?= (int) $v->id ?>/edit"
+                  class="btn-action btn-edit"
+                >
+                  Editar
+                </a>
+
+                <form
+                  method="POST"
+                  action="/admin/viacoes/<?= (int) $v->id ?>"
+                  onsubmit="return confirm('Deseja realmente excluir esta viação?')"
+                >
+
+                  <input type="hidden" name="_method" value="DELETE">
+
+                  <button type="submit" class="btn-action btn-delete">
+                    Excluir
+                  </button>
+
+                </form>
+
+              </div>
+
+            </td>
+
+          </tr>
+
+        <?php endforeach; ?>
+
+      <?php endif; ?>
+
+      </tbody>
+
+    </table>
+
   </div>
-<?php endif; ?>
 
-<div class="header-actions">
-  <a href="/admin/viacoes/create" class="btn-novo">+ Cadastrar nova viação</a>
-  <a href="/admin/historico" class="btn-novo btn-historico-nav">Ver Histórico</a>
+<div class="header-buttons">
 
-  <form method="GET" action="/admin/viacoes" class="form-busca">
-    <input type="text" name="nome"
-           value="<?= htmlspecialchars($filtros['busca']) ?>"
-           placeholder="Buscar por nome...">
-    <button type="submit">Buscar</button>
-    <?php if ($filtros['busca'] !== ''): ?>
-      <a href="/admin/viacoes">Limpar</a>
-    <?php endif; ?>
-  </form>
+  <div class="theme-toggle">
+    <span class="page-subtitle" id="theme-text">Modo Escuro</span>
+    <div class="trilho" id="theme-toggle">
+      <div class="indicador"></div>
+    </div>
+  </div>
 
-  <a href="/logout">Sair</a>
 </div>
 
-<table>
-  <thead>
-  <tr>
-    <th>ID</th>
-    <th>Viação</th>
-    <th>URL</th>
-    <th>Cidade</th>
-    <th>Status</th>
-    <th>Ações</th>
-  </tr>
-  </thead>
-  <tbody>
-  <?php if (empty($viacoes)): ?>
-    <tr><td colspan="6" class="empty-row">Nenhuma viação cadastrada.</td></tr>
-  <?php else: ?>
-    <?php foreach ($viacoes as $v): ?>
-      <tr>
-        <td><?= $v->id ?></td>
-        <td>
-          <div class="viacao-info">
-            <?php if (!empty($v->logo) && file_exists($uploadBase . $v->logo)): ?>
-              <img src="/uploads/logos/<?= htmlspecialchars($v->logo) ?>"
-                   class="logo-avatar" alt="Logo">
-            <?php else: ?>
-              <div class="logo-placeholder">
-                <?= strtoupper(mb_substr($v->nome, 0, 1, 'UTF-8')) ?>
-              </div>
-            <?php endif; ?>
-            <strong><?= htmlspecialchars($v->nome) ?></strong>
-          </div>
-        </td>
-        <td>
-          <a href="<?= htmlspecialchars($v->url) ?>" target="_blank" class="url-link">
-            Visitar site
-          </a>
-        </td>
-        <td><?= htmlspecialchars($v->cidade ?: '—') ?></td>
-        <td class="status-<?= $v->status ?>">
-          <?= ucfirst($v->status) ?>
-        </td>
-        <td>
-          <a href="/admin/viacoes/<?= $v->id ?>/edit" class="btn-edit">Editar</a>
-          <form method="POST" action="/admin/viacoes/<?= $v->id ?>"
-                style="display:inline"
-                onsubmit="return confirm('Tem certeza que deseja excluir esta viação?')">
-            <input type="hidden" name="_method" value="DELETE">
-            <button type="submit" class="btn-delete-inline">Excluir</button>
-          </form>
-        </td>
-      </tr>
-    <?php endforeach; ?>
-  <?php endif; ?>
-  </tbody>
-</table>
-
+<script src="/script.js"></script>
 </body>
 </html>

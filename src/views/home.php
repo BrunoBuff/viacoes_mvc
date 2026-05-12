@@ -153,7 +153,7 @@
     </div>
     <div class="cards-grid">
       <div class="card">
-        <img src="/assets/img/sao-paulo-brasil.webp" alt="São Paulo">
+        <img src="https://assets.queropassagem.com.br/public/Upload/cidades/1a.jpg" alt="São Paulo">
         <div class="card-info">
           <h3>São Paulo</h3>
           <div class="rotas-titulo"><span>Partindo de</span><span>A partir de</span></div>
@@ -164,7 +164,7 @@
         </div>
       </div>
       <div class="card">
-        <img src="/assets/img/rio.jpg" alt="Rio de Janeiro">
+        <img src="https://assets.queropassagem.com.br/public/Upload/cidades/57a.jpg" alt="Rio de Janeiro">
         <div class="card-info">
           <h3>Rio de Janeiro</h3>
           <div class="rotas-titulo"><span>Partindo de</span><span>A partir de</span></div>
@@ -175,7 +175,7 @@
         </div>
       </div>
       <div class="card">
-        <img src="/assets/img/cwb.jpeg" alt="Curitiba">
+        <img src="https://assets.queropassagem.com.br/public/Upload/cidades/55a.jpg" alt="Curitiba">
         <div class="card-info">
           <h3>Curitiba</h3>
           <div class="rotas-titulo"><span>Partindo de</span><span>A partir de</span></div>
@@ -192,7 +192,7 @@
 
 <!-- RAPAZ -->
 <div class="rapaz">
-  <img src="/assets/img/rapaz.png" class="propaganda" alt="Viaje com a Quero Passagem">
+  <img src="https://assets.queropassagem.com.br/static/Images/banner_download_app_2.png" class="propaganda" alt="Viaje com a Quero Passagem">
 </div>
 
 <!-- TOP 15 TRECHOS -->

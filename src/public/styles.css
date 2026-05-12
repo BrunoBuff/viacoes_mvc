@@ -1,260 +1,805 @@
-/* =============================
-RESET / BASE
-============================= */
-*, *::before, *::after { box-sizing: border-box; }
+/* =========================================================
+   RESET / BASE
+========================================================= */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+:root {
+  --primary: #2563eb;
+  --primary-dark: #1d4ed8;
+
+  --success: #16a34a;
+  --danger: #dc2626;
+  --warning: #d97706;
+
+  --bg: #f3f4f6;
+  --surface: #ffffff;
+
+  --text: #111827;
+  --text-muted: #6b7280;
+
+  --border: #e5e7eb;
+
+  --shadow-sm: 0 1px 2px rgba(0,0,0,.04);
+  --shadow-md: 0 4px 12px rgba(0,0,0,.06);
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+
+  --transition: .2s ease;
+}
+
+/* =========================================================
+   DARK MODE
+========================================================= */
+
+body.dark-mode {
+  --bg: #0f172a;
+  --surface: #111827;
+
+  --text: #f9fafb;
+  --text-muted: #9ca3af;
+
+  --border: #1f2937;
+
+  --shadow-sm: 0 1px 2px rgba(0,0,0,.4);
+  --shadow-md: 0 4px 18px rgba(0,0,0,.35);
+}
+
+/* Remove autofill verde do Chrome */
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+select:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 1000px var(--surface) inset !important;
+  -webkit-text-fill-color: var(--text) !important;
+  transition: background-color 9999s ease-in-out 0s;
+}
+
+/* =========================================================
+   BODY
+========================================================= */
 
 body {
-font-family: Arial, sans-serif;
-margin: 40px;
-background: #f4f6f8;
-color: #1f2937;
+  font-family:
+    Inter,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+
+  background: var(--bg);
+  color: var(--text);
+
+  line-height: 1.5;
+
+  transition:
+    background .3s ease,
+    color .3s ease;
 }
 
-h1 { margin-bottom: 20px; }
+/* =========================================================
+   LAYOUT
+========================================================= */
+
+.admin-page {
+  padding: 48px 24px;
+}
+
+.page-container {
+  width: 100%;
+  max-width: 1380px;
+  margin: 0 auto;
+}
+
+/* =========================================================
+   TYPOGRAPHY
+========================================================= */
+
+.page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+
+  gap: 24px;
+
+  margin-bottom: 32px;
+}
+
+.page-title {
+  font-size: 34px;
+  font-weight: 800;
+  letter-spacing: -1px;
+
+  color: var(--text);
+}
+
+.page-subtitle {
+  margin-top: 6px;
+
+  color: var(--text-muted);
+  font-size: 15px;
+}
+
+.text-center {
+  text-align: center;
+}
+
+/* =========================================================
+   LINKS
+========================================================= */
 
 a {
-text-decoration: none;
-color: #2563eb;
-font-weight: bold;
+  text-decoration: none;
+  transition: var(--transition);
 }
-a:hover { text-decoration: underline; }
 
-/* =============================
-ALERTAS
-============================= */
-.alert-erro {
-background: #fee2e2;
-border: 1px solid #fca5a5;
-border-radius: 6px;
-padding: 12px 16px;
-margin-bottom: 20px;
-color: #991b1b;
+/* =========================================================
+   ALERTS
+========================================================= */
+
+.alert {
+  padding: 16px 18px;
+
+  border-radius: var(--radius-md);
+
+  margin-bottom: 24px;
+
+  font-size: 14px;
+  font-weight: 500;
 }
-.alert-erro p { margin: 4px 0; }
+
+.alert-success {
+  background: #ecfdf3;
+  border: 1px solid #bbf7d0;
+  color: #166534;
+}
+
+.alert-error {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #991b1b;
+}
+
+body.dark-mode .alert-success {
+  background: rgba(22,163,74,.15);
+  border-color: rgba(22,163,74,.3);
+  color: #86efac;
+}
+
+body.dark-mode .alert-error {
+  background: rgba(220,38,38,.15);
+  border-color: rgba(220,38,38,.3);
+  color: #fca5a5;
+}
 
 .campo-erro {
-color: #dc2626;
-font-size: 13px;
-margin-top: 4px;
-display: block;
+  display: block;
+
+  margin-top: 6px;
+
+  font-size: 13px;
+  color: var(--danger);
 }
 
-/* =============================
-FORMULÁRIO
-============================= */
-form { width: 400px; max-width: 100%; }
+/* =========================================================
+   BUTTONS
+========================================================= */
+
+.btn,
+.btn-action,
+.btn-search {
+  border: none;
+  outline: none;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 8px;
+
+  cursor: pointer;
+
+  font-size: 14px;
+  font-weight: 600;
+
+  text-decoration: none;
+
+  transition: var(--transition);
+}
+
+/* BOTÃO BASE */
+
+.btn {
+  padding: 12px 18px;
+  border-radius: var(--radius-sm);
+}
+
+/* BOTÃO PRIMÁRIO */
+
+.btn-primary {
+  background: var(--primary);
+  color: #ffffff;
+}
+
+.btn-primary:hover {
+  background: var(--primary-dark);
+  transform: translateY(-1px);
+}
+
+/* BOTÃO SECUNDÁRIO */
+
+.btn-secondary {
+  background: #111827;
+  color: #ffffff;
+}
+
+.btn-secondary:hover {
+  background: #1f2937;
+  transform: translateY(-1px);
+}
+
+/* SEARCH */
+
+.btn-search {
+  height: 44px;
+
+  padding: 0 18px;
+
+  border-radius: var(--radius-sm);
+
+  background: var(--primary);
+  color: #ffffff;
+}
+
+.btn-search:hover {
+  background: var(--primary-dark);
+}
+
+/* LIMPAR */
+
+.btn-limpar {
+  color: var(--danger);
+
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.btn-limpar:hover {
+  opacity: .8;
+}
+
+/* LOGOUT */
+
+.btn-logout {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.btn-logout:hover {
+  color: var(--danger);
+}
+
+/* =========================================================
+   DARK MODE SWITCH
+========================================================= */
+
+.theme-toggle {
+  display: flex;
+  align-items: center;
+
+  gap: 12px;
+}
+
+.trilho {
+  position: relative;
+
+  width: 58px;
+  height: 30px;
+
+  background: #cbd5e1;
+
+  border-radius: 999px;
+
+  cursor: pointer;
+
+  transition: .3s ease;
+}
+
+.trilho .indicador {
+  position: absolute;
+
+  top: 3px;
+  left: 4px;
+
+  width: 24px;
+  height: 24px;
+
+  border-radius: 50%;
+
+  background: #ffffff;
+
+  box-shadow: 0 2px 8px rgba(0,0,0,.2);
+
+  transition: .3s ease;
+}
+
+body.dark-mode .trilho {
+  background: var(--primary);
+}
+
+body.dark-mode .trilho .indicador {
+  left: 30px;
+}
+
+/* =========================================================
+   HEADER ACTIONS
+========================================================= */
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 20px;
+
+  margin-bottom: 28px;
+
+  flex-wrap: wrap;
+}
+
+.header-buttons {
+  display: flex;
+  align-items: center;
+
+  gap: 12px;
+
+  flex-wrap: wrap;
+}
+
+/* =========================================================
+   SEARCH FORM
+========================================================= */
+
+.form-busca {
+  display: flex;
+  align-items: center;
+
+  gap: 10px;
+
+  flex-wrap: wrap;
+}
+
+.form-busca input[type="text"] {
+  width: 280px;
+  height: 44px;
+
+  padding: 0 16px;
+
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+
+  background: var(--surface);
+  color: var(--text);
+
+  font-size: 14px;
+
+  transition: var(--transition);
+}
+
+.form-busca input::placeholder {
+  color: var(--text-muted);
+}
+
+.form-busca input:focus {
+  outline: none;
+
+  border-color: var(--primary);
+
+  box-shadow: 0 0 0 4px rgba(37,99,235,.12);
+}
+
+/* =========================================================
+   TABLE
+========================================================= */
+
+.table-wrapper {
+  overflow-x: auto;
+
+  background: var(--surface);
+
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+
+  box-shadow: var(--shadow-md);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table thead {
+  background: rgba(0,0,0,.02);
+}
+
+body.dark-mode .table thead {
+  background: rgba(255,255,255,.03);
+}
+
+.table th {
+  padding: 18px 20px;
+
+  border-bottom: 1px solid var(--border);
+
+  color: var(--text-muted);
+
+  font-size: 13px;
+  font-weight: 700;
+
+  letter-spacing: .4px;
+  text-transform: uppercase;
+
+  text-align: left;
+}
+
+.table td {
+  padding: 18px 20px;
+
+  border-bottom: 1px solid var(--border);
+
+  font-size: 14px;
+
+  vertical-align: middle;
+}
+
+.table tbody tr {
+  transition: var(--transition);
+}
+
+.table tbody tr:hover {
+  background: rgba(37,99,235,.04);
+}
+
+.table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.empty-row {
+  padding: 48px !important;
+
+  text-align: center;
+
+  color: var(--text-muted);
+}
+
+/* =========================================================
+   VIAÇÃO INFO
+========================================================= */
+
+.viacao-info {
+  display: flex;
+  align-items: center;
+
+  gap: 14px;
+}
+
+.viacao-meta {
+  display: flex;
+  flex-direction: column;
+}
+
+.logo-avatar,
+.logo-placeholder {
+  width: 46px;
+  height: 46px;
+
+  border-radius: 50%;
+
+  flex-shrink: 0;
+}
+
+.logo-avatar {
+  object-fit: cover;
+
+  border: 2px solid rgba(37,99,235,.15);
+}
+
+.logo-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: #dbeafe;
+  color: #1d4ed8;
+
+  font-size: 16px;
+  font-weight: 700;
+}
+
+/* =========================================================
+   URL
+========================================================= */
+
+.url-link {
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.url-link:hover {
+  opacity: .8;
+}
+
+/* =========================================================
+   STATUS
+========================================================= */
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-width: 90px;
+
+  padding: 6px 12px;
+
+  border-radius: 999px;
+
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.status-ativo {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.status-inativo {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+body.dark-mode .status-ativo {
+  background: rgba(22,163,74,.18);
+  color: #86efac;
+}
+
+body.dark-mode .status-inativo {
+  background: rgba(220,38,38,.18);
+  color: #fca5a5;
+}
+
+/* =========================================================
+   TABLE ACTIONS
+========================================================= */
+
+.table-actions {
+  display: flex;
+  align-items: center;
+
+  gap: 16px;
+
+  flex-wrap: wrap;
+}
+
+.table-actions form {
+  display: inline;
+  margin: 0;
+}
+
+.btn-action {
+  border: none;
+  background: transparent;
+
+  cursor: pointer;
+
+  font-size: 14px;
+  font-weight: 600;
+
+  transition: var(--transition);
+}
+
+.btn-edit {
+  color: var(--primary);
+}
+
+.btn-delete {
+  border: none;
+  padding: 0;
+
+  background: transparent;
+  color: var(--danger);
+}
+
+.btn-edit:hover,
+.btn-delete:hover {
+  opacity: .75;
+}
+
+/* =========================================================
+   FORMULÁRIOS
+========================================================= */
+
+form {
+  max-width: 100%;
+}
 
 .campo {
-display: flex;
-flex-direction: column;
-margin-bottom: 18px;
+  display: flex;
+  flex-direction: column;
+
+  margin-bottom: 22px;
 }
 
 .campo label {
-font-weight: bold;
-margin-bottom: 6px;
-font-size: 14px;
+  margin-bottom: 8px;
+
+  font-size: 14px;
+  font-weight: 600;
 }
 
 input[type="text"],
 input[type="url"],
 input[type="file"],
 select {
-padding: 8px 10px;
-border: 1px solid #d1d5db;
-border-radius: 4px;
-font-size: 15px;
-background: white;
+  width: 100%;
+  height: 46px;
+
+  padding: 0 14px;
+
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+
+  background: var(--surface);
+  color: var(--text);
+
+  font-size: 14px;
+
+  transition: var(--transition);
 }
 
-input:focus, select:focus {
-outline: none;
-border-color: #2563eb;
-box-shadow: 0 0 0 3px rgba(37,99,235,.15);
+input::placeholder {
+  color: var(--text-muted);
 }
 
-/* =============================
-BOTÕES
-============================= */
-button {
-padding: 10px;
-width: 100%;
-background: #2563eb;
-color: white;
-border: none;
-border-radius: 6px;
-cursor: pointer;
-font-weight: bold;
-font-size: 15px;
-transition: background .2s;
-}
-button:hover { background: #1d4ed8; }
+input:focus,
+select:focus {
+  outline: none;
 
-.btn-novo {
-display: inline-block;
-background: #2563eb;
-color: white;
-padding: 10px 16px;
-border-radius: 4px;
-text-decoration: none;
-font-weight: bold;
-transition: background .2s;
-}
-.btn-novo:hover { background: #1d4ed8; text-decoration: none; }
+  border-color: var(--primary);
 
-.btn-historico-nav { background: #4b5563; }
-.btn-historico-nav:hover { background: #374151; }
-
-.header-actions {
-display: flex;
-gap: 10px;
-margin-bottom: 20px;
-flex-wrap: wrap;
+  box-shadow: 0 0 0 4px rgba(37,99,235,.12);
 }
 
-/* =============================
-TABELA
-============================= */
-table {
-width: 100%;
-border-collapse: collapse;
-background: white;
-border-radius: 8px;
-overflow: hidden;
-box-shadow: 0 1px 3px rgba(0,0,0,.08);
-}
-
-th {
-background: #2563eb;
-color: white;
-padding: 12px 14px;
-text-align: left;
-font-size: 14px;
-}
-
-td {
-padding: 10px 14px;
-border-bottom: 1px solid #e5e7eb;
-font-size: 14px;
-vertical-align: middle;
-}
-
-tr:last-child td { border-bottom: none; }
-tr:hover td { background: #f9fafb; }
-
-.empty-row {
-text-align: center;
-padding: 30px;
-color: #9ca3af;
-}
-
-/* =============================
-AÇÕES
-============================= */
-.btn-edit   { color: #2563eb; font-weight: bold; }
-.btn-delete { color: #dc2626; font-weight: bold; margin-left: 12px; }
-
-.btn-edit:hover, .btn-delete:hover { text-decoration: underline; }
-
-.url-link { font-weight: normal; color: #2563eb; }
-
-/* =============================
-STATUS
-============================= */
-.status-ativo   { color: #16a34a; font-weight: bold; }
-.status-inativo { color: #dc2626; font-weight: bold; }
-
-/* =============================
-HISTÓRICO — BADGES DE AÇÃO
-============================= */
-.criou  { color: #16a34a; font-weight: bold; }
-.editou { color: #d97706; font-weight: bold; }
-.excluiu{ color: #dc2626; font-weight: bold; }
-
-.detalhes-col {
-max-width: 380px;
-white-space: pre-wrap;
-word-break: break-word;
-font-size: 13px;
-color: #374151;
-}
-
-/* =============================
-LOGO / AVATAR
-============================= */
-.viacao-info {
-display: flex;
-align-items: center;
-gap: 10px;
-}
-
-.logo-avatar {
-width: 42px;
-height: 42px;
-border-radius: 50%;
-object-fit: cover;
-border: 2px solid #e5e7eb;
-flex-shrink: 0;
-}
-
-.logo-placeholder {
-width: 42px;
-height: 42px;
-border-radius: 50%;
-background: #dbeafe;
-color: #1d4ed8;
-display: flex;
-align-items: center;
-justify-content: center;
-font-weight: bold;
-font-size: 16px;
-flex-shrink: 0;
-}
-
-.form-busca {
-display: flex;
-align-items: center;
-gap: 8px;
-margin-left: auto;
-}
-
-.form-busca input[type="text"] {
-padding: 0 16px;
-border: 1px solid #d1d5db;
-border-radius: 4px;
-font-size: 14px;
-width: 220px;
-height: 42px;
-box-sizing: border-box;
-}
-
-.header-actions .form-busca button {
-width: auto !important;
-padding: 0 16px;
-height: 42px;
-font-size: 14px;
-white-space: nowrap;
-box-sizing: border-box;
-}
+/* =========================================================
+   LOGIN
+========================================================= */
 
 .pagina-login {
-display: flex;
-align-items: center;
-justify-content: center;
-min-height: 100vh;
-margin: 0;
+  min-height: 100vh;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 24px;
 }
 
 .login-box {
-background: white;
-padding: 40px;
-border-radius: 8px;
-box-shadow: 0 2px 8px rgba(0,0,0,.1);
-width: 360px;
+  width: 100%;
+  max-width: 400px;
+
+  padding: 40px;
+
+  background: var(--surface);
+
+  border-radius: var(--radius-lg);
+
+  box-shadow: var(--shadow-md);
 }
 
 .login-box h1 {
-margin-bottom: 24px;
-font-size: 22px;
-text-align: center;
+  margin-bottom: 28px;
+
+  text-align: center;
+
+  font-size: 28px;
+  font-weight: 800;
+}
+
+/* =========================================================
+   HISTÓRICO
+========================================================= */
+
+.criou {
+  color: var(--success);
+  font-weight: 700;
+}
+
+.editou {
+  color: var(--warning);
+  font-weight: 700;
+}
+
+.excluiu {
+  color: var(--danger);
+  font-weight: 700;
+}
+
+.detalhes-col {
+  max-width: 420px;
+
+  white-space: pre-wrap;
+  word-break: break-word;
+
+  color: var(--text-muted);
+
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 992px) {
+
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .header-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .form-busca {
+    width: 100%;
+  }
+
+  .form-busca input[type="text"] {
+    width: 100%;
+  }
+
+}
+
+@media (max-width: 768px) {
+
+  .admin-page {
+    padding: 24px 16px;
+  }
+
+  .page-title {
+    font-size: 28px;
+  }
+
+  .table th,
+  .table td {
+    padding: 14px;
+  }
+
+  .table-actions {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .header-buttons {
+    width: 100%;
+  }
+
+  .header-buttons .btn {
+    width: 100%;
+  }
+
 }
