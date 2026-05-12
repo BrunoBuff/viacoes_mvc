@@ -20,7 +20,7 @@
         <img src="https://queropassagem.com.br/2020/images/icones/rodoviario.svg?1709231149" alt=""> Passagens
       </a>
       <a href="#" class="menu-item">
-        <img src="/assets/img/hotel.svg" alt=""> Hotéis
+        <img src="https://queropassagem.com.br/2020/images/icones/hotel.svg?1709231149" alt=""> Hotéis
         <span class="novo">Novo</span>
       </a>
     </nav>
