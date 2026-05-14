@@ -175,7 +175,7 @@
 
         <!-- BOTÃO VOLTAR -->
         <a href="/admin/viacoes" class="btn btn-secondary">
-          ← Voltar
+          Voltar
         </a>
 
         <!-- BOTÃO CADASTRAR -->

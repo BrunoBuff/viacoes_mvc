@@ -22,7 +22,7 @@ $router->get('/admin/viacoes',           [ViacaoController::class, 'index']);
 $router->get('/admin/viacoes/create',    [ViacaoController::class, 'create']);
 $router->post('/admin/viacoes',          [ViacaoController::class, 'store']);
 $router->get('/admin/viacoes/{id}/edit', [ViacaoController::class, 'edit']);
-$router->post('/admin/viacoes/{id}',     [ViacaoController::class, 'update']);
+$router->put('/admin/viacoes/{id}',     [ViacaoController::class, 'update']);
 $router->delete('/admin/viacoes/{id}',   [ViacaoController::class, 'destroy']);
 
 // ── Admin — Histórico ─────────────────────────────────────
