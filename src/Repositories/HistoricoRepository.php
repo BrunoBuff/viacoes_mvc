@@ -7,7 +7,7 @@ use PDO;
 
 
 // Repositório de Auditoria: Gerencia o log de eventos do sistema.
-final class HistoricoRepository
+class HistoricoRepository
 {
     private PDO $pdo;
 

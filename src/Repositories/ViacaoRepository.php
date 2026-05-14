@@ -7,7 +7,7 @@ use App\Models\Viacao;
 use PDO;
 
 // Repositório: Responsável exclusivamente pela persistência de dados no MySQL.
-final class ViacaoRepository {
+class ViacaoRepository {
     private PDO $pdo;
 
     public function __construct(PDO $pdo = null) {
