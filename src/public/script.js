@@ -89,32 +89,25 @@ if (urlInput && urlError) {
 
 // Tema Dark
 
-const themeToggle = document.getElementById('theme-toggle');
-const themeText = document.getElementById('theme-text');
+// Aguarda o documento carregar completamente
+document.addEventListener('DOMContentLoaded', () => {
+  const themeToggle = document.getElementById('theme-toggle');
 
-function enableDarkMode() {
-  document.body.classList.add('dark-mode');
-  localStorage.setItem('theme', 'dark');
-  if (themeText) themeText.textContent = 'Modo Claro';
-}
+  if (themeToggle) {
+    themeToggle.addEventListener('click', () => {
+      // Alterna a classe no body
+      document.body.classList.toggle('dark-mode');
 
-function disableDarkMode() {
-  document.body.classList.remove('dark-mode');
-  localStorage.setItem('theme', 'light');
-  if (themeText) themeText.textContent = 'Modo Escuro';
-}
+      // Salva a preferência
+      const isDark = document.body.classList.contains('dark-mode');
+      localStorage.setItem('theme', isDark ? 'dark' : 'light');
 
-// Verifica a preferência ao carregar a página
+      console.log("Tema alterado! Modo escuro:", isDark); // Para você ver no F12 se funcionou
+    });
+  }
+});
+
+// Aplica o tema salvo assim que o script carregar
 if (localStorage.getItem('theme') === 'dark') {
-  enableDarkMode();
-}
-
-if (themeToggle) {
-  themeToggle.addEventListener('click', () => {
-    if (document.body.classList.contains('dark-mode')) {
-      disableDarkMode();
-    } else {
-      enableDarkMode();
-    }
-  });
+  document.body.classList.add('dark-mode');
 }

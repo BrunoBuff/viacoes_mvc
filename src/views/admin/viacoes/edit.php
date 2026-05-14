@@ -6,75 +6,244 @@
   <title>Editar Viação</title>
   <link rel="stylesheet" href="/styles.css">
 </head>
-<body>
 
-<h1>Editar Viação</h1>
+<body class="admin-page">
 
-<?php if (!empty($errors)): ?>
-  <div class="alert-erro">
-    <?php foreach ($errors as $e): ?>
-      <p>⚠ <?= htmlspecialchars($e) ?></p>
-    <?php endforeach; ?>
-  </div>
-<?php endif; ?>
+<!-- =========================================================
+     CONTAINER PRINCIPAL DA PÁGINA
+========================================================= -->
+<div class="page-container">
 
-<?php
-// __DIR__ = src/views/admin/viacoes
-// dirname(__DIR__, 4) = raiz do projeto
-$uploadBase = dirname(__DIR__, 4) . '/src/public/uploads/logos/';
-?>
 
-<form method="POST" action="/admin/viacoes/<?= $viacao->id ?>" enctype="multipart/form-data">
-  <input type="hidden" name="_method" value="PUT">
+  <!-- =========================================================
+       HEADER DA PÁGINA
+  ========================================================= -->
+  <div class="page-header">
 
-  <div class="campo">
-    <label>Nome *</label>
-    <input type="text" name="nome"
-           value="<?= htmlspecialchars($old['nome'] ?? '') ?>" required>
-  </div>
+    <div>
+      <h1 class="page-title">
+        Editar Viação
+      </h1>
 
-  <div class="campo">
-    <label>URL *</label>
-    <input type="url" name="url" id="url"
-           value="<?= htmlspecialchars($old['url'] ?? '') ?>" required>
-    <span id="url-error" class="campo-erro"></span>
+      <p class="page-subtitle">
+        Atualize as informações da viação cadastrada
+      </p>
+    </div>
+
   </div>
 
-  <div class="campo">
-    <label>Cidade *</label>
-    <input type="text" name="cidade"
-           value="<?= htmlspecialchars($old['cidade'] ?? '') ?>">
-  </div>
 
-  <div class="campo">
-    <label>Status</label>
-    <select name="status">
-      <option value="ativo"
-        <?= (($old['status'] ?? '') === 'ativo') ? 'selected' : '' ?>>Ativo</option>
-      <option value="inativo"
-        <?= (($old['status'] ?? '') === 'inativo') ? 'selected' : '' ?>>Inativo</option>
-    </select>
-  </div>
+  <!-- =========================================================
+       ALERTAS / ERROS DE VALIDAÇÃO
+  ========================================================= -->
+  <?php if (!empty($errors)): ?>
 
-  <div class="campo">
-    <label>Trocar Logo (opcional — manter vazio para não alterar)</label>
-    <?php if (!empty($viacao->logo) && file_exists($uploadBase . $viacao->logo)): ?>
-      <div style="margin-bottom:8px">
-        <img src="/uploads/logos/<?= htmlspecialchars($viacao->logo) ?>"
-             style="height:60px;border-radius:6px;border:1px solid #ddd" alt="Logo atual">
-        <small style="display:block;color:#666;margin-top:4px">Logo atual</small>
+    <div class="alert alert-error">
+
+      <?php foreach ($errors as $e): ?>
+        <p>⚠ <?= htmlspecialchars($e) ?></p>
+      <?php endforeach; ?>
+
+    </div>
+
+  <?php endif; ?>
+
+
+  <!-- =========================================================
+       DIRETÓRIO BASE DOS UPLOADS
+  ========================================================= -->
+  <?php
+  $uploadBase = dirname(__DIR__, 4) . '/src/public/uploads/logos/';
+  ?>
+
+
+  <!-- =========================================================
+       CARD DO FORMULÁRIO
+  ========================================================= -->
+  <div class="form-card">
+
+
+    <!-- =========================================================
+         FORMULÁRIO DE EDIÇÃO
+    ========================================================= -->
+    <form
+      method="POST"
+      action="/admin/viacoes/<?= $viacao->id ?>"
+      enctype="multipart/form-data"
+    >
+
+      <!-- Método HTTP spoofing -->
+      <input type="hidden" name="_method" value="PUT">
+
+
+      <!-- =========================================================
+           GRID DOS CAMPOS PRINCIPAIS
+      ========================================================= -->
+      <div class="form-grid">
+
+
+        <!-- ===================== NOME ===================== -->
+        <div class="campo">
+
+          <label>
+            Nome *
+          </label>
+
+          <input
+            type="text"
+            name="nome"
+            value="<?= htmlspecialchars($old['nome'] ?? '') ?>"
+            required
+          >
+
+        </div>
+
+
+        <!-- ====================== URL ===================== -->
+        <div class="campo">
+
+          <label>
+            URL *
+          </label>
+
+          <input
+            type="url"
+            name="url"
+            id="url"
+            value="<?= htmlspecialchars($old['url'] ?? '') ?>"
+            required
+          >
+
+          <!-- Erro de validação JS -->
+          <span id="url-error" class="campo-erro"></span>
+
+        </div>
+
+
+        <!-- ==================== CIDADE ==================== -->
+        <div class="campo">
+
+          <label>
+            Cidade *
+          </label>
+
+          <input
+            type="text"
+            name="cidade"
+            value="<?= htmlspecialchars($old['cidade'] ?? '') ?>"
+          >
+
+        </div>
+
+
+        <!-- ==================== STATUS ==================== -->
+        <div class="campo">
+
+          <label>
+            Status
+          </label>
+
+          <select name="status">
+
+            <option
+              value="ativo"
+              <?= (($old['status'] ?? '') === 'ativo') ? 'selected' : '' ?>
+            >
+              Ativo
+            </option>
+
+            <option
+              value="inativo"
+              <?= (($old['status'] ?? '') === 'inativo') ? 'selected' : '' ?>
+            >
+              Inativo
+            </option>
+
+          </select>
+
+        </div>
+
       </div>
-    <?php endif; ?>
-    <input type="file" name="logo" accept=".jpg,.jpeg,.png,.webp">
+
+
+      <!-- =========================================================
+           CAMPO DE UPLOAD DA LOGO
+      ========================================================= -->
+      <div class="campo">
+
+        <label>
+          Trocar Logo
+
+          <span class="label-helper">
+            (opcional — manter vazio para não alterar)
+          </span>
+        </label>
+
+
+        <!-- =========================================================
+             PREVIEW DA LOGO ATUAL
+        ========================================================= -->
+        <?php if (!empty($viacao->logo) && file_exists($uploadBase . $viacao->logo)): ?>
+
+          <div class="logo-preview">
+
+            <img
+              src="/uploads/logos/<?= htmlspecialchars($viacao->logo) ?>"
+              alt="Logo atual"
+            >
+
+            <div>
+
+              <strong>
+                Logo atual
+              </strong>
+
+              <small>
+                A imagem será substituída se um novo arquivo for enviado.
+              </small>
+
+            </div>
+
+          </div>
+
+        <?php endif; ?>
+
+
+        <!-- =========================================================
+             INPUT DE UPLOAD
+        ========================================================= -->
+        <input
+          type="file"
+          name="logo"
+          accept=".jpg,.jpeg,.png,.webp"
+        >
+
+      </div>
+
+
+      <!-- =========================================================
+           AÇÕES DO FORMULÁRIO
+      ========================================================= -->
+      <div class="form-actions">
+
+        <!-- BOTÃO VOLTAR -->
+        <a href="/admin/viacoes" class="btn btn-secondary">
+          Voltar
+        </a>
+
+        <!-- BOTÃO SALVAR -->
+        <button type="submit" class="btn btn-primary">
+          Salvar Alterações
+        </button>
+
+      </div>
+
+    </form>
+
   </div>
 
-  <button type="submit">Salvar Alterações</button>
+</div>
 
-</form>
-
-<br>
-<a href="/admin/viacoes">← Voltar para a lista</a>
-
-<script src="/assets/js/script.js"></script>
+<script src="/script.js"></script>
 </body>
 </html>

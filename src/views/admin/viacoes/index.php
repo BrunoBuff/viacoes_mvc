@@ -47,9 +47,11 @@ $flash = View::pullFlash();
       </p>
     </div>
 
-    <a href="/logout" class="btn btn-secondary">
-      Sair
-    </a>
+    <div class="theme-toggle">
+      <div class="trilho" id="theme-toggle">
+        <div class="indicador"></div>
+      </div>
+    </div>
 
   </header>
 
@@ -254,16 +256,9 @@ $flash = View::pullFlash();
 
   </div>
 
-<div class="header-buttons">
-
-  <div class="theme-toggle">
-    <span class="page-subtitle" id="theme-text">Modo Escuro</span>
-    <div class="trilho" id="theme-toggle">
-      <div class="indicador"></div>
-    </div>
-  </div>
-
-</div>
+  <a href="/logout" class="btn btn-secondary">
+    Sair
+  </a>
 
 <script src="/script.js"></script>
 </body>
