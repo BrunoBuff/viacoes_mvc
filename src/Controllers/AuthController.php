@@ -94,7 +94,7 @@ class AuthController
       'nome'  => 'Administrador',
     ];
 
-    $this->redirect('/admin/viacoes');
+    $this->redirect('/admin/home.php');
   }
 
   /**

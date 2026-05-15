@@ -32,7 +32,7 @@ final class ViacaoService
     $isHomeQuery = ($busca === '' && $status === 'ativo' && $ordem === 'nome' && $dir === 'ASC');
 
     if ($isHomeQuery) {
-      $cached = \getCachedData('viacoes_ativas');
+      $cached = \getCachedData('viacoes');
       if ($cached !== null) {
         return array_map(fn($row) => Viacao::fromRow($row), $cached);
       }

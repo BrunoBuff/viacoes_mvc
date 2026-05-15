@@ -1,0 +1,253 @@
+/* ========================= RESET ========================= */
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+}
+
+/* ========================= ROOT ========================= */
+
+:root{
+--azul:#07244d;
+--texto:#111827;
+--muted:#6b7280;
+--border:#d8dee8;
+--primary:#2563eb;
+}
+
+/* ========================= BODY ========================= */
+
+body{
+font-family:'Inter',sans-serif;
+min-height:100vh;
+display:flex;
+background:#fff;
+}
+
+/* ========================= PAINEL ESQUERDO ========================= */
+
+.quero {
+  height: 58px;
+}
+
+.painel-esquerdo{
+width:420px;
+background:var(--azul);
+display:flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+}
+
+/* ========================= PAINEL DIREITO ========================= */
+
+.painel-direito{
+flex:1;
+position:relative;
+display:flex;
+justify-content:center;
+}
+
+/* ========================= TOPO ========================= */
+
+.topo{
+position:absolute;
+top:28px;
+right:42px;
+}
+
+.link-ajuda{
+display:flex;
+align-items:center;
+gap:8px;
+text-decoration:none;
+color:var(--texto);
+font-size:.92rem;
+font-weight:600;
+}
+
+.link-ajuda svg{
+width:17px;
+height:17px;
+}
+
+/* ========================= LOGIN ========================= */
+
+.login-box{
+width:100%;
+max-width:360px;
+margin-top:115px;
+}
+
+.login-box h1{
+font-size:2rem;
+color:var(--texto);
+font-weight:700;
+margin-bottom:10px;
+}
+
+.subtitulo{
+color:#374151;
+font-size:.95rem;
+margin-bottom:28px;
+}
+
+/* ========================= CAMPOS ========================= */
+
+.campo{
+margin-bottom:14px;
+}
+
+.campo input{
+width:100%;
+height:48px;
+border:1px solid var(--border);
+border-radius:4px;
+padding:0 14px;
+font-size:.95rem;
+outline:none;
+}
+
+.campo input:focus{
+border-color:var(--primary);
+}
+
+/* ========================= INFO BOX ========================= */
+
+.info-box{
+background:#edf4ff;
+border-radius:4px;
+display:flex;
+gap:10px;
+padding:10px 12px;
+margin-bottom:18px;
+}
+
+.info-box svg{
+width:16px;
+height:16px;
+flex-shrink:0;
+}
+
+.info-box p{
+font-size:.78rem;
+color:#374151;
+line-height:1.4;
+}
+
+/* ========================= BOTÃO ========================= */
+
+.btn-continuar{
+width:100%;
+height:44px;
+border:none;
+border-radius:4px;
+background:var(--primary);
+color:#fff;
+font-size:.9rem;
+font-weight:700;
+letter-spacing:.03em;
+cursor:pointer;
+margin-bottom:24px;
+transition:.2s ease;
+}
+
+.btn-continuar:hover{
+background:#1e40af;
+}
+
+/* ========================= DIVISOR ========================= */
+
+.divisor{
+display:flex;
+align-items:center;
+gap:14px;
+margin-bottom:18px;
+}
+
+.divisor::before,
+.divisor::after{
+content:'';
+flex:1;
+height:1px;
+background:#d6dbe4;
+}
+
+.divisor span{
+color:#9ca3af;
+font-size:.82rem;
+}
+
+/* ========================= BOTÕES SOCIAIS ========================= */
+
+.btn-social{
+width:100%;
+height:44px;
+border:1px solid #2f63b7;
+border-radius:4px;
+background:#fff;
+
+display:flex;
+align-items:center;
+justify-content:center;
+gap:10px;
+
+text-decoration:none;
+color:#1f3b70;
+font-size:.92rem;
+font-weight:600;
+
+margin-bottom:14px;
+
+transition:.2s ease;
+}
+
+.btn-social:hover{
+background:#f8fafc;
+}
+
+.btn-social img{
+width:20px;
+height:20px;
+}
+
+/* ========================= ALERTA ========================= */
+
+.alert-erro{
+background:#fef2f2;
+border:1px solid #fecaca;
+color:#b91c1c;
+padding:12px;
+border-radius:4px;
+font-size:.85rem;
+margin-bottom:18px;
+}
+
+/* ========================= RESPONSIVO ========================= */
+
+@media(max-width:900px){
+
+body{
+flex-direction:column;
+}
+
+.painel-esquerdo{
+width:100%;
+padding:24px;
+}
+
+.painel-direito{
+justify-content:flex-start;
+}
+
+.topo{
+right:24px;
+}
+
+.login-box{
+padding:0 24px 40px;
+margin-top:90px;
+}
+
+}
