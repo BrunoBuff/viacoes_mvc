@@ -9,6 +9,11 @@
 </head>
 <body>
 
+<?php
+$isLoggedIn = \App\Controllers\AuthController::check();
+$usuarioLogado = \App\Controllers\AuthController::user();
+?>
+
 <!-- HEADER -->
 <header class="header">
   <div class="container header-content">
@@ -25,13 +30,36 @@
       </a>
     </nav>
     <div class="actions">
+
       <a href="#" class="help">Central de Ajuda</a>
-      <a href="/login" class="btn-login">Entrar</a>
+
+      <?php if ($isLoggedIn): ?>
+
+        <span class="usuario-nome">
+      Olá, <?= htmlspecialchars($usuarioLogado['nome'] ?? 'Admin') ?>
+    </span>
+
+        <a href="/admin/viacoes" class="btn-login">
+          Painel Admin
+        </a>
+
+        <a href="/logout" class="btn-logout">
+          Sair
+        </a>
+
+      <?php else: ?>
+
+        <a href="/login" class="btn-login">
+          Entrar
+        </a>
+
+      <?php endif; ?>
     </div>
   </div>
 </header>
 
 <!-- BANNER / HERO -->
+
 <section class="banner">
   <div class="container banner-content">
     <div class="search-box">
@@ -137,9 +165,17 @@
           </a>
         <?php endforeach; ?>
       </div>
-      <div style="margin-top: 36px; text-align: center;">
-        <a href="/admin/viacoes" class="btn-outline">Gerenciar Viações</a>
-      </div>
+
+      <?php if ($isLoggedIn): ?>
+
+        <div style="margin-top: 36px; text-align: center;">
+          <a href="/admin/viacoes" class="btn-outline">
+            Gerenciar Viações
+          </a>
+        </div>
+
+      <?php endif; ?>
+
     <?php endif; ?>
   </div>
 </section>
@@ -486,5 +522,5 @@
 </footer>
 
 <script src="/script.js"></script>
-</body>
+</>
 </html>

@@ -1,116 +1,83 @@
 <?php
-
 declare(strict_types=1);
 
 namespace App\Controllers;
 
 use App\Core\View;
+use App\Repositories\UserRepository;
 
-class AuthController
+final class AuthController
 {
-  /**
-   * =========================================================
-   * Exibe tela de login
-   * =========================================================
-   */
   public function showLogin(): void
   {
     $this->startSession();
 
-    // Se já estiver autenticado
-    if ($this->isAuthenticated()) {
-      $this->redirect('/admin/viacoes');
-    }
+    $notice = $_SESSION['auth_notice'] ?? null;
+    unset($_SESSION['auth_notice']);
 
     View::render('auth/login', [
-      'erro' => null
+      'erro' => null,
+      'notice' => $notice,
     ]);
   }
 
-  /**
-   * =========================================================
-   * Realiza login
-   * =========================================================
-   */
   public function login(): void
   {
     $this->startSession();
 
     $email = trim($_POST['email'] ?? '');
-    $senha = trim($_POST['senha'] ?? '');
+    $password = trim($_POST['password'] ?? ''); // Alterado de 'senha' para 'password'
 
-    // =====================================================
-    // Validação básica
-    // =====================================================
-
-    if ($email === '' || $senha === '') {
-
+    if ($email === '' || $password === '') { // Alterado de $senha para $password
       View::render('auth/login', [
-        'erro' => 'Preencha e-mail e senha.'
+        'erro' => 'Preencha e-mail e senha.',
       ]);
-
       return;
     }
 
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-
       View::render('auth/login', [
-        'erro' => 'Informe um e-mail válido.'
+        'erro' => 'Informe um e-mail válido.',
       ]);
-
       return;
     }
 
-    // =====================================================
-    // Credenciais
-    // (troque depois por banco de dados)
-    // =====================================================
+    $repo = new UserRepository();
 
-    $adminEmail = 'admin@admin.com';
-    $adminSenha = '123456';
+    $user = $repo->findByEmail($email);
 
-    if (
-      $email !== $adminEmail ||
-      $senha !== $adminSenha
-    ) {
-
+    // Alterado de $senha para $password
+    if (!$user || !password_verify($password, $user['password'])) {
       View::render('auth/login', [
-        'erro' => 'E-mail ou senha inválidos.'
+        'erro' => 'E-mail ou senha inválidos.',
       ]);
-
       return;
     }
-
-    // =====================================================
-    // Login OK
-    // =====================================================
 
     session_regenerate_id(true);
 
     $_SESSION['auth'] = true;
 
     $_SESSION['user'] = [
-      'email' => $email,
-      'nome'  => 'Administrador',
+      'id' => $user['id'],
+      'nome' => $user['nome'],
+      'email' => $user['email'],
     ];
 
-    $this->redirect('/admin/home.php');
+    $intended = $_SESSION['intended_url'] ?? '/admin/viacoes';
+
+    unset($_SESSION['intended_url']);
+
+    $this->redirect($intended);
   }
 
-  /**
-   * =========================================================
-   * Logout
-   * =========================================================
-   */
   public function logout(): void
   {
     $this->startSession();
 
     $_SESSION = [];
 
-    // Remove cookie da sessão
     if (ini_get('session.use_cookies')) {
-
       $params = session_get_cookie_params();
 
       setcookie(
@@ -129,26 +96,15 @@ class AuthController
     $this->redirect('/');
   }
 
-  /**
-   * =========================================================
-   * Verifica autenticação
-   * =========================================================
-   */
   public static function check(): bool
   {
     if (session_status() === PHP_SESSION_NONE) {
       session_start();
     }
 
-    return isset($_SESSION['auth']) &&
-      $_SESSION['auth'] === true;
+    return isset($_SESSION['auth']) && $_SESSION['auth'] === true;
   }
 
-  /**
-   * =========================================================
-   * Retorna usuário logado
-   * =========================================================
-   */
   public static function user(): ?array
   {
     if (!self::check()) {
@@ -158,25 +114,6 @@ class AuthController
     return $_SESSION['user'] ?? null;
   }
 
-  /**
-   * =========================================================
-   * Protege rotas privadas
-   * =========================================================
-   */
-  public static function requireAuth(): void
-  {
-    if (!self::check()) {
-
-      header('Location: /login');
-      exit;
-    }
-  }
-
-  /**
-   * =========================================================
-   * Inicia sessão
-   * =========================================================
-   */
   private function startSession(): void
   {
     if (session_status() === PHP_SESSION_NONE) {
@@ -184,22 +121,6 @@ class AuthController
     }
   }
 
-  /**
-   * =========================================================
-   * Verifica se está autenticado
-   * =========================================================
-   */
-  private function isAuthenticated(): bool
-  {
-    return isset($_SESSION['auth']) &&
-      $_SESSION['auth'] === true;
-  }
-
-  /**
-   * =========================================================
-   * Redirect helper
-   * =========================================================
-   */
   private function redirect(string $url): void
   {
     header("Location: {$url}");
