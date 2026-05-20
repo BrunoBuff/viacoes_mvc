@@ -633,9 +633,6 @@ form {
   font-weight: 600;
 }
 
-input[type="text"],
-input[type="url"],
-input[type="file"],
 select {
   width: 100%;
   height: 46px;
@@ -856,8 +853,12 @@ select:focus {
 ========================================================= */
 
 input[type="text"],
+input[type="email"],
+input[type="password"],
 input[type="url"],
 input[type="file"],
+
+
 select {
   width: 100%;
   min-height: 48px;

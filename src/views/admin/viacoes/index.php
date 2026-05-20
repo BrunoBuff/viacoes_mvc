@@ -43,6 +43,7 @@ $flash      = View::pullFlash();
     <div class="header-buttons">
       <a href="/admin/viacoes/create" class="btn btn-primary">+ Nova Viação</a>
       <a href="/admin/historico" class="btn btn-secondary">Ver Histórico</a>
+      <a href="/admin/usuarios" class="btn btn-secondary">Gerenciar Usuários</a>
     </div>
 
     <!-- CORREÇÃO: campo renomeado de 'busca' para 'busca' (era 'nome' no controller anterior) -->

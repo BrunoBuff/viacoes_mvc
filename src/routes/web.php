@@ -8,6 +8,8 @@ use App\Controllers\HomeController;
 use App\Controllers\ViacaoController;
 use App\Controllers\HistoricoController;
 use App\Controllers\AuthController;
+use App\Controllers\UsuarioController;
+
 
 $router = new Router();
 
@@ -43,6 +45,26 @@ $router->put('/admin/viacoes/{id}',      [ViacaoController::class, 'update'])
   ->middleware(AuthMiddleware::class);
 
 $router->delete('/admin/viacoes/{id}',   [ViacaoController::class, 'destroy'])
+  ->middleware(AuthMiddleware::class);
+
+// ── Admin — Usuários ──────────────────────────────────────
+// NOVAS ROTAS: Mapeamento completo do CRUD de Usuários protegido por login
+$router->get('/admin/usuarios',           [UsuarioController::class, 'index'])
+  ->middleware(AuthMiddleware::class);
+
+$router->get('/admin/usuarios/create',    [UsuarioController::class, 'create'])
+  ->middleware(AuthMiddleware::class);
+
+$router->post('/admin/usuarios',          [UsuarioController::class, 'store'])
+  ->middleware(AuthMiddleware::class);
+
+$router->get('/admin/usuarios/{id}/edit', [UsuarioController::class, 'edit'])
+  ->middleware(AuthMiddleware::class);
+
+$router->put('/admin/usuarios/{id}',      [UsuarioController::class, 'update'])
+  ->middleware(AuthMiddleware::class);
+
+$router->delete('/admin/usuarios/{id}',   [UsuarioController::class, 'destroy'])
   ->middleware(AuthMiddleware::class);
 
 // ── Admin — Histórico ─────────────────────────────────────
