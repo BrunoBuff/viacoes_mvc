@@ -16,7 +16,7 @@ final class AuthController
     unset($_SESSION['auth_notice']);
 
     View::render('auth/login', [
-      'erro' => null,
+      'erro'   => null,
       'notice' => $notice,
     ]);
   }
@@ -25,32 +25,24 @@ final class AuthController
   {
     $this->startSession();
 
-    $email = trim($_POST['email'] ?? '');
-    $password = trim($_POST['password'] ?? ''); // Alterado de 'senha' para 'password'
+    $email    = trim($_POST['email']    ?? '');
+    $password = trim($_POST['password'] ?? '');
 
-    if ($email === '' || $password === '') { // Alterado de $senha para $password
-      View::render('auth/login', [
-        'erro' => 'Preencha e-mail e senha.',
-      ]);
+    if ($email === '' || $password === '') {
+      View::render('auth/login', ['erro' => 'Preencha e-mail e senha.', 'notice' => null]);
       return;
     }
 
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-      View::render('auth/login', [
-        'erro' => 'Informe um e-mail válido.',
-      ]);
+      View::render('auth/login', ['erro' => 'Informe um e-mail válido.', 'notice' => null]);
       return;
     }
 
     $repo = new UserRepository();
-
     $user = $repo->findByEmail($email);
 
-    // Alterado de $senha para $password
     if (!$user || !password_verify($password, $user['password'])) {
-      View::render('auth/login', [
-        'erro' => 'E-mail ou senha inválidos.',
-      ]);
+      View::render('auth/login', ['erro' => 'E-mail ou senha inválidos.', 'notice' => null]);
       return;
     }
 
@@ -58,14 +50,19 @@ final class AuthController
 
     $_SESSION['auth'] = true;
 
+    // CORREÇÃO: gravamos user_id como chave de primeiro nível para que
+    // ViacaoService possa recuperá-lo com $_SESSION['user_id'].
+    // A versão anterior só gravava $_SESSION['user']['id'], mas o Service
+    // lia $_SESSION['user_id'] — causando fallback silencioso para userId=1.
+    $_SESSION['user_id'] = (int) $user['id'];
+
     $_SESSION['user'] = [
-      'id' => $user['id'],
-      'nome' => $user['nome'],
+      'id'    => (int) $user['id'],
+      'nome'  => $user['nome'],
       'email' => $user['email'],
     ];
 
     $intended = $_SESSION['intended_url'] ?? '/admin/viacoes';
-
     unset($_SESSION['intended_url']);
 
     $this->redirect($intended);
@@ -79,10 +76,8 @@ final class AuthController
 
     if (ini_get('session.use_cookies')) {
       $params = session_get_cookie_params();
-
       setcookie(
-        session_name(),
-        '',
+        session_name(), '',
         time() - 42000,
         $params['path'],
         $params['domain'],
@@ -92,7 +87,6 @@ final class AuthController
     }
 
     session_destroy();
-
     $this->redirect('/');
   }
 

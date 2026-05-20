@@ -10,7 +10,7 @@
 <body>
 
 <?php
-$isLoggedIn = \App\Controllers\AuthController::check();
+$isLoggedIn    = \App\Controllers\AuthController::check();
 $usuarioLogado = \App\Controllers\AuthController::user();
 ?>
 
@@ -30,36 +30,20 @@ $usuarioLogado = \App\Controllers\AuthController::user();
       </a>
     </nav>
     <div class="actions">
-
       <a href="#" class="help">Central de Ajuda</a>
 
       <?php if ($isLoggedIn): ?>
-
-        <span class="usuario-nome">
-      Olá, <?= htmlspecialchars($usuarioLogado['nome'] ?? 'Admin') ?>
-    </span>
-
-        <a href="/admin/viacoes" class="btn-login">
-          Painel Admin
-        </a>
-
-        <a href="/logout" class="btn-logout">
-          Sair
-        </a>
-
+        <span class="usuario-nome">Olá, <?= htmlspecialchars($usuarioLogado['nome'] ?? 'Admin') ?></span>
+        <a href="/admin/viacoes" class="btn-login">Painel Admin</a>
+        <a href="/logout" class="btn-logout">Sair</a>
       <?php else: ?>
-
-        <a href="/login" class="btn-login">
-          Entrar
-        </a>
-
+        <a href="/login" class="btn-login">Entrar</a>
       <?php endif; ?>
     </div>
   </div>
 </header>
 
 <!-- BANNER / HERO -->
-
 <section class="banner">
   <div class="container banner-content">
     <div class="search-box">
@@ -68,10 +52,12 @@ $usuarioLogado = \App\Controllers\AuthController::user();
         <div class="input-container">
           <label for="origem">Partindo de</label>
           <input type="text" id="origem" name="origem" placeholder="Cidade de origem">
+          <ul id="lista-origem" class="autocomplete-lista"></ul>
         </div>
         <div class="input-container">
           <label for="destino">Indo para</label>
           <input type="text" id="destino" name="destino" placeholder="Cidade de destino">
+          <ul id="lista-destino" class="autocomplete-lista"></ul>
         </div>
         <div class="dates-row">
           <div class="input-container">
@@ -113,17 +99,35 @@ $usuarioLogado = \App\Controllers\AuthController::user();
   </div>
 </section>
 
-<!-- VIAÇÕES PARCEIRAS -->
-<section class="secao-viacoes">
+<!-- =========================================================
+     VIAÇÕES PARCEIRAS — com filtro live
+========================================================= -->
+<section class="secao-viacoes" id="secao-viacoes">
   <div class="container">
+
     <div class="secao-header">
       <h2>Nossas Viações Parceiras</h2>
       <p>Empresas de ônibus cadastradas e verificadas pela nossa equipe</p>
+
       <?php if (!empty($viacoesAtivas)): ?>
-        <?php $total = count($viacoesAtivas); ?>
-        <span class="badge-ativas">
-          <?= $total ?> viação<?= $total > 1 ? 'ões' : '' ?> ativa<?= $total > 1 ? 's' : '' ?>
+        <span class="badge-ativas" id="badge-ativas">
+          <?= count($viacoesAtivas) ?> viação<?= count($viacoesAtivas) > 1 ? 'ões' : '' ?> ativa<?= count($viacoesAtivas) > 1 ? 's' : '' ?>
         </span>
+      <?php endif; ?>
+    </div>
+
+    <!-- Campo de filtro -->
+    <div class="filtro-viacoes">
+      <input
+        type="text"
+        id="filtro-viacao"
+        placeholder="Filtrar por nome ou cidade..."
+        value="<?= htmlspecialchars($filtro ?? '') ?>"
+        autocomplete="off"
+        aria-label="Filtrar viações"
+      >
+      <?php if (!empty($filtro)): ?>
+        <a href="/" class="btn-limpar-filtro" id="btn-limpar-filtro">✕ Limpar</a>
       <?php endif; ?>
     </div>
 
@@ -131,22 +135,26 @@ $usuarioLogado = \App\Controllers\AuthController::user();
       <div class="viacoes-vazia">
         <p>Não foi possível carregar as viações no momento.</p>
       </div>
+
     <?php elseif (empty($viacoesAtivas)): ?>
-      <div class="viacoes-vazia">
-        <p>Nenhuma viação ativa no momento.</p>
-        <a href="/admin/viacoes">Cadastrar primeira viação →</a>
+      <div class="viacoes-vazia" id="viacoes-vazia">
+        <p>Nenhuma viação encontrada<?= !empty($filtro) ? ' para "' . htmlspecialchars($filtro) . '"' : '' ?>.</p>
+        <?php if (empty($filtro)): ?>
+          <a href="/admin/viacoes">Cadastrar primeira viação →</a>
+        <?php endif; ?>
       </div>
+
     <?php else: ?>
       <?php
-      // __DIR__ = src/views
-      // dirname(__DIR__, 2) = raiz do projeto
       $uploadBase = dirname(__DIR__, 2) . '/src/public/uploads/logos/';
       ?>
-      <div class="viacoes-grid">
+      <div class="viacoes-grid" id="viacoes-grid">
         <?php foreach ($viacoesAtivas as $v): ?>
           <a href="<?= htmlspecialchars($v->url) ?>"
              target="_blank" rel="noopener noreferrer"
              class="viacao-card"
+             data-nome="<?= htmlspecialchars(mb_strtolower($v->nome, 'UTF-8')) ?>"
+             data-cidade="<?= htmlspecialchars(mb_strtolower($v->cidade, 'UTF-8')) ?>"
              title="Visitar site da <?= htmlspecialchars($v->nome) ?>">
 
             <?php if (!empty($v->logo) && file_exists($uploadBase . $v->logo)): ?>
@@ -166,17 +174,19 @@ $usuarioLogado = \App\Controllers\AuthController::user();
         <?php endforeach; ?>
       </div>
 
-      <?php if ($isLoggedIn): ?>
-
-        <div style="margin-top: 36px; text-align: center;">
-          <a href="/admin/viacoes" class="btn-outline">
-            Gerenciar Viações
-          </a>
-        </div>
-
-      <?php endif; ?>
+      <!-- Mensagem exibida pelo JS quando o filtro não retorna resultados -->
+      <div class="viacoes-vazia" id="viacoes-vazia" style="display:none;">
+        <p>Nenhuma viação encontrada para "<span id="filtro-termo"></span>".</p>
+      </div>
 
     <?php endif; ?>
+
+    <?php if ($isLoggedIn): ?>
+      <div style="margin-top: 36px; text-align: center;">
+        <a href="/admin/viacoes" class="btn-outline">Gerenciar Viações</a>
+      </div>
+    <?php endif; ?>
+
   </div>
 </section>
 
@@ -452,27 +462,16 @@ $usuarioLogado = \App\Controllers\AuthController::user();
     </div>
     <div class="footer-links">
       <div class="col-links">
-        <a>Sobre nós</a>
-        <a>Termos de uso</a>
-        <a>Política de privacidade</a>
-        <a>Termos de Uso Lounge Vip</a>
-        <a>Imprensa</a>
-        <a>Minha Conta</a>
+        <a>Sobre nós</a><a>Termos de uso</a><a>Política de privacidade</a>
+        <a>Termos de Uso Lounge Vip</a><a>Imprensa</a><a>Minha Conta</a>
       </div>
       <div class="col-links">
-        <a>Atendimento Online</a>
-        <a>Trabalhe Conosco</a>
-        <a>Gratuidade</a>
-        <a>Auto Viações</a>
-        <a>Rodoviárias</a>
-        <a>Destinos</a>
+        <a>Atendimento Online</a><a>Trabalhe Conosco</a><a>Gratuidade</a>
+        <a>Auto Viações</a><a>Rodoviárias</a><a>Destinos</a>
       </div>
       <div class="col-links">
-        <a>Afiliados</a>
-        <a>Versão Mobile</a>
-        <a>Rodomilhas</a>
-        <a>Viajo Mucho</a>
-        <a>La Terminal Costa Rica</a>
+        <a>Afiliados</a><a>Versão Mobile</a><a>Rodomilhas</a>
+        <a>Viajo Mucho</a><a>La Terminal Costa Rica</a>
       </div>
     </div>
     <div class="grupo">
@@ -522,5 +521,5 @@ $usuarioLogado = \App\Controllers\AuthController::user();
 </footer>
 
 <script src="/script.js"></script>
-</>
+</body>
 </html>

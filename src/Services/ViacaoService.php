@@ -1,5 +1,4 @@
 <?php
-
 declare(strict_types=1);
 
 namespace App\Services;
@@ -12,17 +11,17 @@ use Exception;
 
 final class ViacaoService
 {
-  private ViacaoRepository $repo;
-  private ViacaoValidator $validator;
+  private ViacaoRepository   $repo;
+  private ViacaoValidator    $validator;
   private HistoricoRepository $historico;
-  private string $uploadDir;
+  private string             $uploadDir;
 
   public function __construct(
-    ?ViacaoRepository $repo = null,
-    ?ViacaoValidator $validator = null,
+    ?ViacaoRepository    $repo      = null,
+    ?ViacaoValidator     $validator = null,
     ?HistoricoRepository $historico = null
   ) {
-    $this->repo = $repo ?? new ViacaoRepository();
+    $this->repo      = $repo      ?? new ViacaoRepository();
     $this->validator = $validator ?? new ViacaoValidator();
     $this->historico = $historico ?? new HistoricoRepository();
 
@@ -33,10 +32,10 @@ final class ViacaoService
   public function all(string $busca, string $status, string $ordem, string $dir): array
   {
     $isHomeQuery = (
-      $busca === '' &&
-      $status === 'ativo' &&
-      $ordem === 'nome' &&
-      $dir === 'ASC'
+      $busca   === '' &&
+      $status  === 'ativo' &&
+      $ordem   === 'nome' &&
+      $dir     === 'ASC'
     );
 
     if ($isHomeQuery) {
@@ -44,7 +43,7 @@ final class ViacaoService
 
       if ($cached !== null) {
         return array_map(
-          fn(array $row) => Viacao::fromRow($row),
+          static fn(array $row): Viacao => Viacao::fromRow($row),
           $cached
         );
       }
@@ -55,7 +54,7 @@ final class ViacaoService
     if ($isHomeQuery) {
       \setCachedData(
         'viacoes_ativas',
-        array_map(fn($v) => (array) $v, $viacoes)
+        array_map(static fn(Viacao $v): array => (array) $v, $viacoes)
       );
     }
 
@@ -75,28 +74,20 @@ final class ViacaoService
       throw new Exception(implode('|', $errors));
     }
 
-    $nome = trim($data['nome']);
-
-    // 1. Salva o registro principal no banco de dados
     $id = $this->repo->create([
-      'nome'   => $nome,
+      'nome'   => trim($data['nome']),
       'url'    => trim($data['url']),
       'cidade' => trim($data['cidade']),
       'status' => ($data['status'] ?? '') === 'inativo' ? 'inativo' : 'ativo',
       'logo'   => $this->handleUpload($fileLogo),
     ]);
 
-    // 2. Busca o ID do administrador logado na sessão do sistema
-    $userId = $_SESSION['user_id'] ?? $_SESSION['auth']['id'] ?? 1;
+    // CORREÇÃO: user_id agora lido de $_SESSION['user_id'] (gravado no login)
+    // A versão anterior tinha fallback para 1 porque lia ['user_id'] mas o
+    // AuthController gravava apenas em ['user']['id'].
+    $userId = (int) ($_SESSION['user_id'] ?? $_SESSION['auth']['id'] ?? 1);
 
-    // 3. Grava o histórico no formato correto esperado pelo HistoricoRepository
-    $this->historico->log(
-      $id,        // viacao_id
-      $userId,    // user_id
-      'CREATE',   // acao
-      null,       // antes (não existia estado anterior no cadastro)
-      $data       // depois (dados que foram inseridos)
-    );
+    $this->historico->log($id, $userId, 'CREATE', null, $data);
 
     \invalidateCache('viacoes_ativas');
 
@@ -126,45 +117,25 @@ final class ViacaoService
 
     $mudancas = [];
 
-    if ($old->nome !== $updateData['nome']) {
-      $mudancas[] = "Nome: '{$old->nome}' → '{$updateData['nome']}'";
-    }
+    if ($old->nome   !== $updateData['nome'])   { $mudancas[] = "Nome: '{$old->nome}' → '{$updateData['nome']}'"; }
+    if ($old->url    !== $updateData['url'])     { $mudancas[] = "URL: '{$old->url}' → '{$updateData['url']}'"; }
+    if ($old->cidade !== $updateData['cidade']) { $mudancas[] = "Cidade: '{$old->cidade}' → '{$updateData['cidade']}'"; }
+    if ($old->status !== $updateData['status']) { $mudancas[] = "Status: '{$old->status}' → '{$updateData['status']}'"; }
 
-    if ($old->url !== $updateData['url']) {
-      $mudancas[] = "URL: '{$old->url}' → '{$updateData['url']}'";
-    }
-
-    if ($old->cidade !== $updateData['cidade']) {
-      $mudancas[] = "Cidade: '{$old->cidade}' → '{$updateData['cidade']}'";
-    }
-
-    if ($old->status !== $updateData['status']) {
-      $mudancas[] = "Status: '{$old->status}' → '{$updateData['status']}'";
-    }
-
-    if ($fileLogo !== null && $fileLogo['error'] === UPLOAD_ERR_OK) {
+    // CORREÇÃO: verificação de erro do upload antes de processar
+    if ($fileLogo !== null && ($fileLogo['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_OK) {
       $updateData['logo'] = $this->handleUpload($fileLogo);
       $mudancas[] = 'Logo atualizada';
     }
 
-    // 1. Atualiza os dados no banco
     $this->repo->update($id, $updateData);
 
-    // 2. Registra a auditoria caso tenha ocorrido alguma mudança real
     if (!empty($mudancas)) {
-      $userId = $_SESSION['user_id'] ?? $_SESSION['auth']['id'] ?? 1;
+      $userId = (int) ($_SESSION['user_id'] ?? 1);
 
       $this->historico->log(
-        $id,
-        $userId,
-        'UPDATE',
-        [
-          'nome'   => $old->nome,
-          'url'    => $old->url,
-          'cidade' => $old->cidade,
-          'status' => $old->status,
-          'logo'   => $old->logo
-        ],
+        $id, $userId, 'UPDATE',
+        ['nome' => $old->nome, 'url' => $old->url, 'cidade' => $old->cidade, 'status' => $old->status, 'logo' => $old->logo],
         $updateData
       );
     }
@@ -180,30 +151,19 @@ final class ViacaoService
       return;
     }
 
-    $userId = $_SESSION['user_id'] ?? $_SESSION['auth']['id'] ?? 1;
+    $userId = (int) ($_SESSION['user_id'] ?? 1);
 
-    // 1. Grava a auditoria de exclusão ANTES de apagar a viação do banco (Garante a integridade da Foreign Key)
+    // Auditoria ANTES de deletar (garante integridade da FK)
     $this->historico->log(
-      $id,
-      $userId,
-      'DELETE',
-      [
-        'nome'   => $viacao->nome,
-        'url'    => $viacao->url,
-        'cidade' => $viacao->cidade,
-        'status' => $viacao->status,
-        'logo'   => $viacao->logo
-      ],
+      $id, $userId, 'DELETE',
+      ['nome' => $viacao->nome, 'url' => $viacao->url, 'cidade' => $viacao->cidade, 'status' => $viacao->status, 'logo' => $viacao->logo],
       null
     );
 
-    // 2. Agora sim, remove com segurança do banco de dados
     $this->repo->delete($id);
 
-    // 3. Remove o arquivo físico de imagem se ele existir
     if ($viacao->logo) {
       $path = $this->uploadDir . $viacao->logo;
-
       if (file_exists($path)) {
         unlink($path);
       }
@@ -214,10 +174,7 @@ final class ViacaoService
 
   private function handleUpload(?array $file): ?string
   {
-    if (
-      $file === null ||
-      $file['error'] !== UPLOAD_ERR_OK
-    ) {
+    if ($file === null || ($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
       return null;
     }
 
@@ -227,22 +184,18 @@ final class ViacaoService
       throw new Exception('Arquivo de upload inválido.');
     }
 
-    $maxSize = 2 * 1024 * 1024;
-
-    if ($file['size'] > $maxSize) {
-      throw new Exception('Arquivo muito grande. Máximo permitido: 2MB.');
+    if ($file['size'] > 2 * 1024 * 1024) {
+      throw new Exception('Arquivo muito grande. Máximo permitido: 2 MB.');
     }
-
-    $allowedExtensions = ['jpg', 'jpeg', 'png', 'webp'];
 
     $extension = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
 
-    if (!in_array($extension, $allowedExtensions, true)) {
+    if (!in_array($extension, ['jpg', 'jpeg', 'png', 'webp'], true)) {
       throw new Exception('Extensão de arquivo inválida.');
     }
 
     $finfo = finfo_open(FILEINFO_MIME_TYPE);
-    $mime = finfo_file($finfo, $tmpName);
+    $mime  = finfo_file($finfo, $tmpName);
     finfo_close($finfo);
 
     $allowedMimes = [

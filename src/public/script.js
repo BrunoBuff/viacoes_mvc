@@ -1,4 +1,7 @@
-// Array para AutoComplete
+// ================================================================
+// AUTOCOMPLETE — Cidades
+// ================================================================
+
 const cidades = [
   "Cabo Frio, RJ", "Rio de Janeiro, RJ", "São Paulo, SP",
   "Belo Horizonte, MG", "Curitiba, PR", "Arraial do Cabo, RJ", "Búzios, RJ"
@@ -33,17 +36,24 @@ function configurarAutocomplete(idInput, idLista) {
   });
 }
 
+// CORREÇÃO: IDs dos elementos de autocomplete (lista-origem e lista-destino)
+// estavam referenciados no JS mas as <ul> não existiam no HTML original da home.
+// As <ul> foram adicionadas na view home.php corrigida.
 configurarAutocomplete('origem', 'lista-origem');
 configurarAutocomplete('destino', 'lista-destino');
 
-// BOTÃO INVERTER
+
+// ================================================================
+// BOTÃO INVERTER (origem <-> destino)
+// ================================================================
+
 const botaoInverter = document.querySelector('.botao-inverter');
 const inputOrigem   = document.getElementById('origem');
 const inputDestino  = document.getElementById('destino');
 
 if (botaoInverter && inputOrigem && inputDestino) {
   botaoInverter.addEventListener('click', () => {
-    const tmp = inputOrigem.value;
+    const tmp          = inputOrigem.value;
     inputOrigem.value  = inputDestino.value;
     inputDestino.value = tmp;
     botaoInverter.style.transform =
@@ -51,7 +61,11 @@ if (botaoInverter && inputOrigem && inputDestino) {
   });
 }
 
-// Validação de datas
+
+// ================================================================
+// VALIDAÇÃO DE DATAS
+// ================================================================
+
 const campoSaida   = document.getElementById('data-saida');
 const campoRetorno = document.getElementById('data-retorno');
 
@@ -69,7 +83,11 @@ if (campoSaida && campoRetorno) {
   });
 }
 
-// Validação em tempo real do campo URL (usado nos forms do admin)
+
+// ================================================================
+// VALIDAÇÃO EM TEMPO REAL DO CAMPO URL (admin)
+// ================================================================
+
 const urlInput = document.getElementById('url');
 const urlError = document.getElementById('url-error');
 
@@ -87,27 +105,93 @@ if (urlInput && urlError) {
   });
 }
 
-// Tema Dark
 
-// Aguarda o documento carregar completamente
+// ================================================================
+// FILTRO LIVE DE VIAÇÕES (home)
+// Filtra os cards client-side sem recarregar a página.
+// ================================================================
+
+(function () {
+  const input    = document.getElementById('filtro-viacao');
+  const grid     = document.getElementById('viacoes-grid');
+  const vazio    = document.getElementById('viacoes-vazia');
+  const badge    = document.getElementById('badge-ativas');
+  const termoEl  = document.getElementById('filtro-termo');
+  const btnLimpar = document.getElementById('btn-limpar-filtro');
+
+  if (!input || !grid) return;
+
+  const cards = Array.from(grid.querySelectorAll('.viacao-card'));
+  const totalOriginal = cards.length;
+
+  function atualizar(termo) {
+    const q = termo.trim().toLowerCase();
+
+    let visiveis = 0;
+
+    cards.forEach(card => {
+      const nome   = card.dataset.nome   || '';
+      const cidade = card.dataset.cidade || '';
+      const bate   = q === '' || nome.includes(q) || cidade.includes(q);
+
+      card.style.display = bate ? '' : 'none';
+      if (bate) visiveis++;
+    });
+
+    // Mostra/oculta mensagem de vazio
+    if (vazio) {
+      if (visiveis === 0) {
+        if (termoEl) termoEl.textContent = termo.trim();
+        vazio.style.display = '';
+      } else {
+        vazio.style.display = 'none';
+      }
+    }
+
+    // Atualiza badge de contagem
+    if (badge) {
+      const n   = visiveis;
+      badge.textContent = `${n} viação${n !== 1 ? 'ões' : ''} ativa${n !== 1 ? 's' : ''}`;
+    }
+
+    // Mostra/oculta botão limpar
+    if (btnLimpar) {
+      btnLimpar.style.display = q !== '' ? '' : 'none';
+    }
+  }
+
+  // Inicializa com o valor já preenchido (vindo do PHP, ex: após reload)
+  atualizar(input.value);
+
+  input.addEventListener('input', () => atualizar(input.value));
+
+  if (btnLimpar) {
+    btnLimpar.addEventListener('click', (e) => {
+      e.preventDefault();
+      input.value = '';
+      atualizar('');
+    });
+  }
+})();
+
+
+// ================================================================
+// TEMA DARK / LIGHT
+// ================================================================
+
+// Aplica tema salvo ANTES do DOMContentLoaded para evitar flash
+if (localStorage.getItem('theme') === 'dark') {
+  document.body.classList.add('dark-mode');
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   const themeToggle = document.getElementById('theme-toggle');
 
   if (themeToggle) {
     themeToggle.addEventListener('click', () => {
-      // Alterna a classe no body
       document.body.classList.toggle('dark-mode');
-
-      // Salva a preferência
       const isDark = document.body.classList.contains('dark-mode');
       localStorage.setItem('theme', isDark ? 'dark' : 'light');
-
-      console.log("Tema alterado! Modo escuro:", isDark); // Para você ver no F12 se funcionou
     });
   }
 });
-
-// Aplica o tema salvo assim que o script carregar
-if (localStorage.getItem('theme') === 'dark') {
-  document.body.classList.add('dark-mode');
-}

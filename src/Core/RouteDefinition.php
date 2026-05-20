@@ -22,7 +22,7 @@ final class RouteDefinition
 
   public function __construct(
     public readonly string         $regex,
-    public readonly callable|array $handler,
+    public readonly array $handler,
   ) {}
 
   /**
