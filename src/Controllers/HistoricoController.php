@@ -6,13 +6,6 @@ namespace App\Controllers;
 use App\Core\View;
 use App\Repositories\HistoricoRepository;
 
-/**
- * Controller de Histórico (Auditoria).
- *
- * CORREÇÕES:
- *  - Repassa filtros opcionais da query string para o repositório.
- *  - Disponibiliza listas de viações e usuários para os selects de filtro na view.
- */
 final class HistoricoController
 {
   public function index(): void

@@ -8,6 +8,8 @@ use App\Repositories\UserRepository;
 
 final class AuthController
 {
+
+//* ------------------- showLogin -------------------  *//
   public function showLogin(): void
   {
     $this->startSession();
@@ -21,6 +23,7 @@ final class AuthController
     ]);
   }
 
+//* --------------------- Login ---------------------  *//
   public function login(): void
   {
     $this->startSession();
@@ -28,55 +31,53 @@ final class AuthController
     $email    = trim($_POST['email']    ?? '');
     $password = trim($_POST['password'] ?? '');
 
-    if ($email === '' || $password === '') {
+    if ($email === '' || $password === '') {                         // se vazio valida campos vazios e retorna view
       View::render('auth/login', ['erro' => 'Preencha e-mail e senha.', 'notice' => null]);
       return;
     }
 
-    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {          // valida email retorna view
       View::render('auth/login', ['erro' => 'Informe um e-mail válido.', 'notice' => null]);
       return;
     }
 
-    $repo = new UserRepository();
+    $repo = new UserRepository();                       // busca usuário por no banco
     $user = $repo->findByEmail($email);
 
-    if (!$user || !password_verify($password, $user['password'])) {
+    if (!$user || !password_verify($password, $user['password'])) {     // validação de usuário e senha utilizando passwor_verify
       View::render('auth/login', ['erro' => 'E-mail ou senha inválidos.', 'notice' => null]);
       return;
     }
 
-    session_regenerate_id(true);
+        //* --- Segurança --- *//
+    session_regenerate_id(true);        // troca o id da sessão
 
-    $_SESSION['auth'] = true;
+    $_SESSION['auth'] = true;                          // flag de login
 
-    // CORREÇÃO: gravamos user_id como chave de primeiro nível para que
-    // ViacaoService possa recuperá-lo com $_SESSION['user_id'].
-    // A versão anterior só gravava $_SESSION['user']['id'], mas o Service
-    // lia $_SESSION['user_id'] — causando fallback silencioso para userId=1.
-    $_SESSION['user_id'] = (int) $user['id'];
+    $_SESSION['user_id'] = (int) $user['id'];          // guarda somente o id
 
-    $_SESSION['user'] = [
+    $_SESSION['user'] = [                              // guarda os outros dados
       'id'    => (int) $user['id'],
       'nome'  => $user['nome'],
       'email' => $user['email'],
     ];
 
-    $intended = $_SESSION['intended_url'] ?? '/admin/viacoes';
-    unset($_SESSION['intended_url']);
+    $intended = $_SESSION['intended_url'] ?? '/admin/viacoes';        // Verifica se havia página protegida pendente
+    unset($_SESSION['intended_url']);                                 // Remove intended_url
 
     $this->redirect($intended);
   }
 
+//* --------------------- Logout ---------------------  *//
   public function logout(): void
   {
     $this->startSession();
 
-    $_SESSION = [];
+    $_SESSION = [];                                           // esvazia conteudo
 
     if (ini_get('session.use_cookies')) {
       $params = session_get_cookie_params();
-      setcookie(
+      setcookie(                                              // apaga cookie no navegador
         session_name(), '',
         time() - 42000,
         $params['path'],
@@ -86,7 +87,7 @@ final class AuthController
       );
     }
 
-    session_destroy();
+    session_destroy();                                        // destroi sessão no servidor
     $this->redirect('/');
   }
 
