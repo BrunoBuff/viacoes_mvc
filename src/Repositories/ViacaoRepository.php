@@ -12,7 +12,7 @@ final class ViacaoRepository
 
   public function __construct(?PDO $pdo = null)
   {
-    // CORREÇÃO: getPdo() (minúsculo) — consistente com db.php
+
     $this->pdo = $pdo ?? \getPdo();
   }
 

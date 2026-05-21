@@ -21,7 +21,7 @@ class ViacaoServiceTest extends TestCase
     $this->repo      = $this->createMock(ViacaoRepository::class);
     $this->historico = $this->createMock(HistoricoRepository::class);
 
-    // Validator real — suas regras de negócio devem ser testadas de verdade
+    // Validator real
     $this->service = new ViacaoService(
       $this->repo,
       new ViacaoValidator(),

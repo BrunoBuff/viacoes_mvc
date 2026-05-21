@@ -9,10 +9,6 @@ namespace App\Core;
  * CORREÇÕES:
  *  - Os métodos get/post/put/delete agora retornam RouteDefinition para
  *    permitir o encadeamento de middlewares (->middleware(AuthMiddleware::class)).
- *    Na versão original o retorno era void, tornando RouteDefinition e
- *    MiddlewareInterface completamente inúteis (código morto).
- *  - O dispatch() agora executa a cadeia de middlewares antes do handler.
- *  - Adicionado suporte a parâmetros de rota além de {id} (e.g. {slug}).
  */
 final class Router
 {
