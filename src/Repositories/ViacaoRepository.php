@@ -6,16 +6,6 @@ namespace App\Repositories;
 use App\Models\Viacao;
 use PDO;
 
-/**
- * Repositório: responsável exclusivamente pela persistência de dados no MySQL.
- *
- * CORREÇÕES:
- *  - Função de conexão unificada: era chamada ora como getPDO() (maiúsculas),
- *    ora como getPdo() — padronizado para getPdo() (conforme db.php).
- *  - all(): busca agora filtra por nome OU cidade (antes só por nome),
- *    alinhando com o placeholder da view ("Buscar por nome ou cidade...").
- *  - Adicionado índice composto sugerido em init.sql (ver comentário).
- */
 final class ViacaoRepository
 {
   private PDO $pdo;
@@ -28,7 +18,6 @@ final class ViacaoRepository
 
   /**
    * Busca filtrada e ordenada.
-   * CORREÇÃO: filtra por nome OU cidade, não só por nome.
    */
   public function all(string $busca, string $status, string $ordem, string $dir): array
   {

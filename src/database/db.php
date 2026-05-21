@@ -17,7 +17,6 @@ function getPdo(): PDO
     $pass = 'app123';
     $dsn = "mysql:host={$host};dbname={$db};charset=utf8mb4";
 
-    // Sem o try/catch isolado aqui, qualquer erro de conexão (PDOException)
     // será automaticamente capturado pelo set_exception_handler do index.php.
     $pdo = new PDO($dsn, $user, $pass, [
         PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,

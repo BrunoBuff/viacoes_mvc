@@ -6,17 +6,6 @@ namespace App\Repositories;
 use App\Models\Historico;
 use PDO;
 
-/**
- * HistoricoRepository
- *
- * Persistência e consulta dos registros de auditoria.
- *
- * Correções em relação à versão anterior:
- *  - log() agora recebe $userId obrigatório e grava snapshots JSON reais
- *    (colunas `antes` e `depois` da tabela).
- *  - all() suporta filtros por viacao_id, user_id, acao e intervalo de datas.
- *  - Os aliases do SELECT batem com as propriedades do Model Historico.
- */
 final class HistoricoRepository
 {
   private PDO $pdo;

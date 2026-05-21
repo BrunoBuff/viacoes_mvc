@@ -3,18 +3,6 @@ declare(strict_types=1);
 
 namespace App\Core;
 
-/**
- * RouteDefinition
- *
- * Objeto imutável (exceto pela lista de middlewares) que encapsula
- * os dados de uma rota registrada no Router.
- *
- * O método middleware() permite encadear middlewares de forma fluente:
- *
- *   $router->get('/admin/viacoes', [...])
- *          ->middleware(AuthMiddleware::class)
- *          ->middleware(LogMiddleware::class);
- */
 final class RouteDefinition
 {
   /** @var string[] Lista de classes de middleware (FQCN). */

@@ -3,17 +3,6 @@ declare(strict_types=1);
 
 namespace App\Models;
 
-/**
- * Representa um registro de auditoria no sistema.
- *
- * CORREÇÕES:
- *  - Adicionado fromRow() para hidratação consistente (o HistoricoRepository
- *    chamava Historico::fromRow() mas o Model original não o implementava).
- *  - Propriedades alinhadas às colunas reais da tabela viacoes_historico
- *    (viacao_id, user_id, acao, antes, depois, criado_em, viacao_nome, etc.)
- *  - Removidas propriedades fictícias (nomeViacao, detalhes, dataHora) que não
- *    existem como colunas e causavam erros silenciosos na view do histórico.
- */
 final class Historico
 {
   public function __construct(

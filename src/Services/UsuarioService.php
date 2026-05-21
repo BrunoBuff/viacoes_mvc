@@ -11,93 +11,101 @@ use Exception;
 final class UsuarioService
 {
   private UsuarioRepository $repository;
-  private UsuarioValidator $validator;
+  private UsuarioValidator  $validator;
 
   public function __construct(
     ?UsuarioRepository $repository = null,
-    ?UsuarioValidator $validator = null
+    ?UsuarioValidator  $validator  = null
   ) {
     $this->repository = $repository ?? new UsuarioRepository();
-    $this->validator = $validator ?? new UsuarioValidator($this->repository);
+    $this->validator  = $validator  ?? new UsuarioValidator();
   }
 
-  /**
-   * Retorna todos os usuários filtrados.
-   * @return Usuario[]
-   */
+  /** @return Usuario[] */
   public function all(string $busca = ''): array
   {
     return $this->repository->all($busca);
   }
 
-  /**
-   * Busca um usuário pelo ID.
-   */
   public function find(int $id): ?Usuario
   {
     return $this->repository->find($id);
   }
 
-  /**
-   * Regra de negócio para criar um usuário.
-   */
   public function create(array $data): int
   {
-    // 1. Valida as entradas do formulário
-    $this->validator->validar($data);
+    // 1. Valida formato dos campos
+    $this->validator->validarCriacao($data);
 
-    // 2. Gera a hash segura da senha antes de mandar para a persistência
-    $senhaHash = password_hash($data['password'], PASSWORD_BCRYPT);
+    // 2. Verifica duplicidade de e-mail (responsabilidade do Service, não do Validator)
+    $email = trim((string) ($data['email'] ?? ''));
+    if ($this->repository->emailExiste($email)) {
+      throw new Exception('Este e-mail já está sendo usado por outro usuário.');
+    }
 
-    // 3. Salva no banco de dados
+    // 3. Gera hash segura — nunca persiste senha em texto plano
+    $senhaHash = password_hash(
+      trim((string) $data['password']),
+      PASSWORD_BCRYPT,
+      ['cost' => 12]
+    );
+
     return $this->repository->create(
-      trim($data['nome']),
-      trim($data['email']),
+      trim((string) $data['nome']),
+      $email,
       $senhaHash
     );
   }
 
-  /**
-   * Regra de negócio para atualizar um usuário.
-   */
   public function update(int $id, array $data): void
   {
-    // 1. Valida passando o ID atual para permitir que o usuário mantenha o mesmo e-mail dele
-    $this->validator->validar($data, $id);
+    $usuario = $this->repository->find($id);
 
-    $novaSenhaHash = null;
-    $password = (string) ($data['password'] ?? '');
-
-    // 2. Se o usuário digitou uma nova senha na edição, gera uma nova hash
-    if ($password !== '') {
-      $novaSenhaHash = password_hash($password, PASSWORD_BCRYPT);
+    if ($usuario === null) {
+      throw new Exception('Usuário não encontrado.');
     }
 
-    // 3. Atualiza os dados através do Repositório
+    // 1. Valida formato
+    $this->validator->validarEdicao($data);
+
+    // 2. Verifica duplicidade ignorando o próprio usuário
+    $email = trim((string) ($data['email'] ?? ''));
+    if ($this->repository->emailExiste($email, $id)) {
+      throw new Exception('Este e-mail já está sendo usado por outro usuário.');
+    }
+
+    // 3. Gera nova hash só se o admin quis alterar a senha
+    $novaSenhaHash = null;
+    $password      = trim((string) ($data['password'] ?? ''));
+
+    if ($password !== '') {
+      $novaSenhaHash = password_hash($password, PASSWORD_BCRYPT, ['cost' => 12]);
+    }
+
     $this->repository->update(
       $id,
-      trim($data['nome']),
-      trim($data['email']),
+      trim((string) $data['nome']),
+      $email,
       $novaSenhaHash
     );
   }
 
-  /**
-   * Regra de negócio para exclusão (com trava de segurança).
-   */
   public function delete(int $id): void
   {
-    // Garante que a sessão está ativa para ler quem está logado
     if (session_status() === PHP_SESSION_NONE) {
       session_start();
     }
 
-    // Pega o ID do usuário atualmente logado no sistema
-    $usuarioLogadoId = (int) ($_SESSION['usuario_id'] ?? 0);
+    // CORREÇÃO: chave correta é 'user_id', não 'usuario_id'
+    // A versão anterior nunca bloqueava autoexclusão por ler a chave errada.
+    $usuarioLogadoId = (int) ($_SESSION['user_id'] ?? 0);
 
-    // Impede a autoexclusão catastrófica
     if ($id === $usuarioLogadoId) {
-      throw new Exception('Ação bloqueada: Você não pode excluir a sua própria conta administrativa.');
+      throw new Exception('Você não pode excluir a sua própria conta.');
+    }
+
+    if ($this->repository->find($id) === null) {
+      throw new Exception('Usuário não encontrado.');
     }
 
     $this->repository->delete($id);

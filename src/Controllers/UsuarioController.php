@@ -7,14 +7,6 @@ use App\Core\View;
 use App\Services\UsuarioService;
 use Exception;
 
-/**
- * UsuarioController — CRUD administrativo de usuários.
- *
- * Padrão idêntico ao ViacaoController:
- *  - Cada método HTTP tem exatamente uma responsabilidade.
- *  - Erros de validação relançam a view com os dados antigos ($old).
- *  - Sucesso redireciona com flash message.
- */
 final class UsuarioController
 {
   private UsuarioService $service;
@@ -24,18 +16,21 @@ final class UsuarioController
     $this->service = $service ?? new UsuarioService();
   }
 
-  // ── GET /admin/usuarios ───────────────────────────────────
+  // GET /admin/usuarios
   public function index(): void
   {
     $busca = trim((string) ($_GET['busca'] ?? ''));
 
+    $flash = View::pullFlash();
+
     View::render('admin/usuarios/index', [
       'usuarios' => $this->service->all($busca),
       'filtros'  => compact('busca'),
+      'flash'    => $flash,
     ]);
   }
 
-  // ── GET /admin/usuarios/create ────────────────────────────
+  // GET /admin/usuarios/create
   public function create(): void
   {
     View::render('admin/usuarios/create', [
@@ -44,25 +39,25 @@ final class UsuarioController
     ]);
   }
 
-  // ── POST /admin/usuarios ──────────────────────────────────
+  // POST /admin/usuarios
   public function store(): void
   {
     try {
       $this->service->create($_POST);
-
       View::flash('success', 'Usuário cadastrado com sucesso!');
       View::redirect('/admin/usuarios');
-
     } catch (Exception $e) {
       View::render('admin/usuarios/create', [
         'errors' => explode('|', $e->getMessage()),
-        // Nunca devolve a senha ao formulário
-        'old'    => ['nome' => $_POST['nome'] ?? '', 'email' => $_POST['email'] ?? ''],
+        'old'    => [
+          'nome'  => $_POST['nome']  ?? '',
+          'email' => $_POST['email'] ?? '',
+        ],
       ]);
     }
   }
 
-  // ── GET /admin/usuarios/{id}/edit ─────────────────────────
+  // GET /admin/usuarios/{id}/edit
   public function edit(int $id): void
   {
     $usuario = $this->service->find($id);
@@ -80,15 +75,13 @@ final class UsuarioController
     ]);
   }
 
-  // ── PUT /admin/usuarios/{id} ──────────────────────────────
+  // PUT /admin/usuarios/{id}
   public function update(int $id): void
   {
     try {
       $this->service->update($id, $_POST);
-
       View::flash('success', 'Usuário atualizado com sucesso!');
       View::redirect('/admin/usuarios');
-
     } catch (Exception $e) {
       $usuario = $this->service->find($id);
 
@@ -101,12 +94,15 @@ final class UsuarioController
       View::render('admin/usuarios/edit', [
         'usuario' => $usuario,
         'errors'  => explode('|', $e->getMessage()),
-        'old'     => ['nome' => $_POST['nome'] ?? '', 'email' => $_POST['email'] ?? ''],
+        'old'     => [
+          'nome'  => $_POST['nome']  ?? '',
+          'email' => $_POST['email'] ?? '',
+        ],
       ]);
     }
   }
 
-  // ── DELETE /admin/usuarios/{id} ───────────────────────────
+  // DELETE /admin/usuarios/{id}
   public function destroy(int $id): void
   {
     try {

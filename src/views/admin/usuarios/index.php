@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Administração de Usuários</title>
+  <title>Gerenciamento de Usuários</title>
   <link rel="stylesheet" href="/styles.css">
 </head>
 
@@ -18,12 +18,21 @@
     </div>
   </header>
 
-  <!-- FILTROS / AÇÕES -->
+  <!-- FLASH MESSAGE -->
+  <!-- CORREÇÃO: flash não era exibido na listagem — o controller agora passa $flash -->
+  <?php if (!empty($flash)): ?>
+    <div class="alert alert-<?= htmlspecialchars($flash['type']) ?>">
+      <?= htmlspecialchars($flash['message']) ?>
+    </div>
+  <?php endif; ?>
+
+  <!-- AÇÕES + FILTRO -->
   <section class="header-actions">
 
     <div class="header-buttons">
-      <a href="/admin/viacoes" class="btn btn-secondary">Voltar para a lista</a>
-      <a href="/admin/usuarios/create" class="btn">Novo Usuário</a>
+      <a href="/admin/viacoes" class="btn btn-secondary">← Viações</a>
+      <!-- CORREÇÃO: btn sem btn-primary ficava sem cor -->
+      <a href="/admin/usuarios/create" class="btn btn-primary">+ Novo Usuário</a>
     </div>
 
     <form method="GET" action="/admin/usuarios" class="form-busca">
@@ -32,8 +41,8 @@
         name="busca"
         value="<?= htmlspecialchars($filtros['busca'] ?? '') ?>"
         placeholder="Buscar por nome ou e-mail..."
+        autocomplete="off"
       >
-
       <button type="submit" class="btn btn-search">Filtrar</button>
 
       <?php if (!empty($filtros['busca'])): ?>
@@ -51,7 +60,11 @@
       <table class="table">
         <tbody>
         <tr>
-          <td colspan="4" class="empty-row">Nenhum usuário encontrado.</td>
+          <td colspan="5" class="empty-row">
+            <?= !empty($filtros['busca'])
+              ? 'Nenhum usuário encontrado para "' . htmlspecialchars($filtros['busca']) . '".'
+              : 'Nenhum usuário cadastrado ainda.' ?>
+          </td>
         </tr>
         </tbody>
       </table>
@@ -64,34 +77,68 @@
           <th>ID</th>
           <th>Nome</th>
           <th>E-mail</th>
-          <th>Ações</th>
+          <th>Cadastrado em</th>
+          <th class="text-center">Ações</th>
         </tr>
         </thead>
-
         <tbody>
+        <?php
+        // ID do usuário logado — para desabilitar o botão de excluir a si mesmo
+        $userLogadoId = (int) ($_SESSION['user_id'] ?? 0);
+        ?>
+
         <?php foreach ($usuarios as $usuario): ?>
           <tr>
-            <td><?= (int) $usuario->id ?></td>
-            <td><strong><?= htmlspecialchars($usuario->nome) ?></strong></td>
+            <td>#<?= (int) $usuario->id ?></td>
+
+            <td>
+              <div class="viacao-info">
+                <!-- Avatar com inicial do nome, padrão do projeto -->
+                <div class="logo-placeholder">
+                  <?= strtoupper(mb_substr($usuario->nome, 0, 1, 'UTF-8')) ?>
+                </div>
+                <div class="viacao-meta">
+                  <strong><?= htmlspecialchars($usuario->nome) ?></strong>
+                  <?php if ($usuario->id === $userLogadoId): ?>
+                    <small style="color: var(--text-muted); font-size: 11px;">Você</small>
+                  <?php endif; ?>
+                </div>
+              </div>
+            </td>
+
             <td><?= htmlspecialchars($usuario->email) ?></td>
 
-            <td class="actions-cell">
-              <a href="/admin/usuarios/<?= $usuario->id ?>/edit" class="btn btn-small">
-                Editar
-              </a>
-
-              <form
-                method="POST"
-                action="/admin/usuarios/<?= $usuario->id ?>"
-                style="display:inline;"
-                onsubmit="return confirm('Tem certeza que deseja excluir este usuário?');"
-              >
-                <input type="hidden" name="_method" value="DELETE">
-                <button type="submit" class="btn btn-danger btn-small">
-                  Excluir
-                </button>
-              </form>
+            <td>
+              <?= !empty($usuario->criadoEm)
+                ? date('d/m/Y', strtotime($usuario->criadoEm))
+                : '—' ?>
             </td>
+
+            <td>
+              <div class="table-actions">
+                <a href="/admin/usuarios/<?= (int) $usuario->id ?>/edit"
+                   class="btn-action btn-edit">
+                  Editar
+                </a>
+
+                <?php if ($usuario->id !== $userLogadoId): ?>
+                  <form
+                    method="POST"
+                    action="/admin/usuarios/<?= (int) $usuario->id ?>"
+                    onsubmit="return confirm('Tem certeza que deseja excluir o usuário <?= htmlspecialchars(addslashes($usuario->nome)) ?>?')"
+                  >
+                    <input type="hidden" name="_method" value="DELETE">
+                    <button type="submit" class="btn-action btn-delete">Excluir</button>
+                  </form>
+                <?php else: ?>
+                  <!-- Usuário logado não pode se excluir — botão desabilitado visualmente -->
+                  <span style="color: var(--text-muted); font-size: 13px; font-weight: 600;">
+                      Sua conta
+                    </span>
+                <?php endif; ?>
+              </div>
+            </td>
+
           </tr>
         <?php endforeach; ?>
         </tbody>
@@ -101,8 +148,12 @@
 
   </div>
 
-</div>
+  <!-- Link de volta, padrão das outras páginas admin -->
+  <div style="margin-top: 24px;">
+    <a href="/logout" class="btn btn-secondary">Sair</a>
+  </div>
 
+</div>
 <script src="/script.js"></script>
 </body>
 </html>

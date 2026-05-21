@@ -6,14 +6,6 @@ namespace App\Repositories;
 use App\Models\Usuario;
 use PDO;
 
-/**
- * UsuarioRepository — persistência e consulta de usuários.
- *
- * Segue o mesmo padrão do ViacaoRepository:
- *  - Recebe PDO via injeção (ou singleton via getPdo()).
- *  - Retorna objetos tipados, nunca arrays brutos.
- *  - Nunca expõe a hash de senha fora do necessário.
- */
 final class UsuarioRepository
 {
   private PDO $pdo;

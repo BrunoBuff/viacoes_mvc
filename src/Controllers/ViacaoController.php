@@ -7,17 +7,7 @@ use App\Core\View;
 use App\Services\ViacaoService;
 use Exception;
 
-/**
- * Controller Administrativo para Gestão de Viações.
- *
- * CORREÇÕES:
- *  - O parâmetro GET de busca era lido como 'nome' no controller mas a view
- *    enviava o campo como 'busca' — unificado para 'busca'.
- *  - destroy() agora retorna 404 se a viação não existir, em vez de
- *    silenciosamente redirecionar com mensagem de sucesso falsa.
- *  - edit() e update() tratam corretamente o caso de viação não encontrada
- *    no catch do update (evita NPE se find() retornar null após exception).
- */
+// Controller Administrativo para Gestão de Viações. Inclui listagem com filtros, criação, edição e remoção de viações.
 final class ViacaoController
 {
   private ViacaoService $viacoes;
@@ -103,7 +93,7 @@ final class ViacaoController
     } catch (Exception $e) {
       $viacao = $this->viacoes->find($id);
 
-      // CORREÇÃO: se a viação não existir após o erro, evita NPE na view
+      //  se a viação não existir após o erro, evita NPE na view
       if ($viacao === null) {
         http_response_code(404);
         echo 'Viação não encontrada.';
@@ -121,8 +111,7 @@ final class ViacaoController
   // Remove uma viação (DELETE)
   public function destroy(int $id): void
   {
-    // CORREÇÃO: retorna 404 adequado se a viação não existir,
-    // em vez de redirecionar com mensagem de sucesso falsa.
+    //  retorna 404 adequado se a viação não existir,
     $viacao = $this->viacoes->find($id);
 
     if ($viacao === null) {
